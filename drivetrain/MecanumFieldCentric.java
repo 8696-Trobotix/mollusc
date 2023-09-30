@@ -1,0 +1,89 @@
+/*
+Mecanum Field Centric
+
+Drivetrain hardware class.
+Based on top of MecanumRobotCentric.
+
+vIX-XXX-XXIII
+*/
+
+package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
+
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+public class MecanumFieldCentric implements Drivetrain {
+
+    MecanumRobotCentric robotCentric;
+
+    public void MecanumFieldCentric(
+        HardwareMap hardwareMap, 
+        Telemetry telemetry, 
+        String fl, DcMotorEx.Direction fld, 
+        String fr, DcMotorEx.Direction frd, 
+        String rl, DcMotorEx.Direction rld, 
+        String rr, DcMotorEx.Direction rrd, 
+        String imuName, 
+            RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
+            RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
+    ) {
+        robotCentric = new MecanumRobotCentric(hardwareMap, null, fl, fld, fr, frd, rl, rld, rr, rrd);
+
+        // Connect IMU.
+        imu = hardwareMap.get(IMU.class, "imu");
+
+        // Configure IMU.
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = logoFacingDirection;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = usbFacingDirection;
+        RevHubOrientationOnRobot IMUorientation = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(IMUorientation));
+
+        if (telemetry != null) {
+            telemetry.log().add("Initialized field centric hardware.");
+            telemetry.update();
+        }
+    }
+
+    public void zeroEncoders() {
+        robotCentric.zeroEncoders();
+    }
+
+    public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
+        robotCentric.setDriveParams(turnSpeedMax, strafeCorrection);
+    }
+
+    public void drive(double drive, double strafe, double turn) {
+        strafe *= robotCentric.strafeCorrection;
+        turn   *= robotCentric.turnSpeedMax;
+
+        // Quadratic controller sensitivity.
+        drive  *= Math.abs(drive);
+        strafe *= Math.abs(strafe);
+        turn   *= Math.abs(turn);
+
+        heading   = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        // Calculations based on GM0.
+        rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
+        rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
+        // Normalize.
+        max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
+        fl = (rotY + rotX + turn) / max;
+        fr = (rotY - rotX - turn) / max;
+        rl = (rotY - rotX + turn) / max;
+        rr = (rotY + rotX - turn) / max;
+
+        // Act.
+        frontLeft.setPower(fl);
+        frontRight.setPower(fr);
+        rearLeft.setPower(rl);
+        rearRight.setPower(rr);
+    }
+
+    public void getEncoderCounts() {
+        return robotCentric.getEncoderCounts();
+    }
+}
