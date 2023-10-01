@@ -28,8 +28,17 @@ public class MecanumAuto <DrivetrainType implements Drivetrain> {
     Telemetry telemetry;
 
     public MecanumAuto(DrivetrainType drivetrain, HardwareMap hardwareMap, Telemetry telemetry) {
-        this.hardwareMap = hardwareMap;
         this.drivetrain = drivetrain;
+        this.hardwareMap = hardwareMap;
+        this.telemetry = telemetry;
+
+        if (telemetry != null) {
+            telemetry.log().add("Initialized autonomous with drivetrain type: " + 
+                drivetrain instanceof MecanumRobotCentric ? "robot centric." : "" + 
+                drivetrain instanceof MecanumFieldCentric ? "field centric." : ""
+            );
+            telemetry.update();
+        }
     }
 
     public long BOOL_DELAY = 100;

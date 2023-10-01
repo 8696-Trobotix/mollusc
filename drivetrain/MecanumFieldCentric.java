@@ -64,7 +64,7 @@ public class MecanumFieldCentric implements Drivetrain {
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
 
-        heading   = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         // Calculations based on GM0.
         rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
