@@ -17,15 +17,23 @@ import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.firstinspires.ftc.teamcode.mollusc.drivetrain.Drivetrain;
+import org.firstinspires.ftc.teamcode.mollusc.drivetrain.MecanumRobotCentric;
+import org.firstinspires.ftc.teamcode.mollusc.drivetrain.MecanumFieldCentric;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class MecanumAuto <DrivetrainType implements Drivetrain> {
+public class MecanumAuto <DrivetrainType extends Drivetrain> {
 
-    DrivetrainType drivetrain;
-    HardwareMap hardwareMap;
-    Telemetry telemetry;
+    public DrivetrainType drivetrain;
+    public HardwareMap hardwareMap;
+    public Telemetry telemetry;
 
     public MecanumAuto(DrivetrainType drivetrain, HardwareMap hardwareMap, Telemetry telemetry) {
         this.drivetrain = drivetrain;
@@ -34,8 +42,8 @@ public class MecanumAuto <DrivetrainType implements Drivetrain> {
 
         if (telemetry != null) {
             telemetry.log().add("Initialized autonomous with drivetrain type: " + 
-                drivetrain instanceof MecanumRobotCentric ? "robot centric." : "" + 
-                drivetrain instanceof MecanumFieldCentric ? "field centric." : ""
+                (drivetrain instanceof MecanumRobotCentric ? "robot centric." : "") + 
+                (drivetrain instanceof MecanumFieldCentric ? "field centric." : "")
             );
             telemetry.update();
         }
@@ -45,17 +53,21 @@ public class MecanumAuto <DrivetrainType implements Drivetrain> {
     public long DOUBLE_DELAY = 250;
     public long FULL_CHARGE_VOLTAGE = 14;
 
-    public boolean bool(boolean defaultValue, String caption, String label0, String label1) {
+    public boolean bool(OpMode opMode, LinearOpMode linearOpMode, Gamepad gamepad1, boolean defaultValue, String caption, String label0, String label1) {
         boolean autoClear = telemetry.isAutoClear();
         if (autoClear) telemetry.setAutoClear(false); // Can't clear items now.
         boolean b = defaultValue; // Not strictly necessary, but good for being explicit.
         Telemetry.Item telItem = telemetry.addData(caption, b ? label1 : label0);
-        while (!gamepad1.a && !isStopRequested()) {
+        while (!gamepad1.a) {
             telItem.setValue(b ? label1 : label0);
             telemetry.update();
             if (gamepad1.dpad_up) b = false;
             else if (gamepad1.dpad_down) b = true;
-            sleep(BOOL_DELAY);
+            if (opMode == null){
+                linearOpMode.sleep(BOOL_DELAY);
+            } else {
+                // opMode.sleep(BOOL_DELAY);
+            }
         }
         while (gamepad1.a); // In case they hold A for too long.
         telItem.setCaption(caption.toUpperCase());
@@ -64,17 +76,21 @@ public class MecanumAuto <DrivetrainType implements Drivetrain> {
         return b;
     }
 
-    public double float64(double defaultValue, double var, int precision, String caption) {
+    public double float64(OpMode opMode, LinearOpMode linearOpMode, Gamepad gamepad1, double defaultValue, double var, int precision, String caption) {
         boolean autoClear = telemetry.isAutoClear();
         if (autoClear) telemetry.setAutoClear(false);
         double num = defaultValue;
         Telemetry.Item telItem = telemetry.addData(caption, (long) (num * Math.pow(10, precision)) / Math.pow(10, precision));
-        while (!gamepad1.a && !isStopRequested()) {
+        while (!gamepad1.a) {
             telItem.setValue((long) (num * Math.pow(10, precision)) / Math.pow(10, precision));
             telemetry.update();
             if (gamepad1.dpad_up) num += var;
             else if (gamepad1.dpad_down) num -= var;
-            sleep(DOUBLE_DELAY);
+            if (opMode == null){
+                linearOpMode.sleep(BOOL_DELAY);
+            } else {
+                // opMode.sleep(BOOL_DELAY);
+            }
         }
         while (gamepad1.a);
         telItem.setCaption(caption.toUpperCase());

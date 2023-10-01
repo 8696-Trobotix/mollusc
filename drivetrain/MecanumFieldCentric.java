@@ -9,17 +9,21 @@ vIX-XXX-XXIII
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumFieldCentric implements Drivetrain {
 
-    MecanumRobotCentric robotCentric;
+    public MecanumRobotCentric robotCentric;
+    public IMU imu;
 
-    public void MecanumFieldCentric(
+    public MecanumFieldCentric(
         HardwareMap hardwareMap, 
         Telemetry telemetry, 
         String fl, DcMotorEx.Direction fld, 
@@ -64,27 +68,31 @@ public class MecanumFieldCentric implements Drivetrain {
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
 
-        heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
         // Calculations based on GM0.
-        rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
-        rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
+        double rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
+        double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
         // Normalize.
-        max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
-        fl = (rotY + rotX + turn) / max;
-        fr = (rotY - rotX - turn) / max;
-        rl = (rotY - rotX + turn) / max;
-        rr = (rotY + rotX - turn) / max;
+        double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
+        double fl = (rotY + rotX + turn) / max;
+        double fr = (rotY - rotX - turn) / max;
+        double rl = (rotY - rotX + turn) / max;
+        double rr = (rotY + rotX - turn) / max;
 
         // Act.
-        frontLeft.setPower(fl);
-        frontRight.setPower(fr);
-        rearLeft.setPower(rl);
-        rearRight.setPower(rr);
+        robotCentric.frontLeft.setPower(fl);
+        robotCentric.frontRight.setPower(fr);
+        robotCentric.rearLeft.setPower(rl);
+        robotCentric.rearRight.setPower(rr);
     }
 
-    public void getEncoderCounts() {
+    public int[] getEncoderCounts() {
         return robotCentric.getEncoderCounts();
+    }
+
+    public IMU getIMU() {
+        return imu;
     }
 }
 
