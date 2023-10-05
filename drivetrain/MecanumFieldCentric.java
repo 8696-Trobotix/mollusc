@@ -42,8 +42,8 @@ public class MecanumFieldCentric implements Drivetrain {
         // Configure IMU.
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = logoFacingDirection;
         RevHubOrientationOnRobot.UsbFacingDirection usbDirection = usbFacingDirection;
-        RevHubOrientationOnRobot IMUorientation = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-        imu.initialize(new IMU.Parameters(IMUorientation));
+        RevHubOrientationOnRobot IMUOrientation = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(IMUOrientation));
 
         if (telemetry != null) {
             telemetry.log().add("Initialized field centric hardware.");
