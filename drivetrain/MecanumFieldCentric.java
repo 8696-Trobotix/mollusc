@@ -2,9 +2,8 @@
 Mecanum Field Centric
 
 Drivetrain hardware class.
-Based on top of MecanumRobotCentric.
 
-vIX-XXX-XXIII
+vX-XII-XXIII
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
@@ -20,8 +19,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumFieldCentric implements Drivetrain {
 
-    public MecanumRobotCentric robotCentric;
+    public DrivetrainBase base;
     public IMU imu;
+
+    public double turnSpeedMax = 0.9, strafeCorrection = 1.1;
 
     public MecanumFieldCentric(
         HardwareMap hardwareMap, 
@@ -34,7 +35,7 @@ public class MecanumFieldCentric implements Drivetrain {
             RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
             RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
     ) {
-        robotCentric = new MecanumRobotCentric(hardwareMap, null, fl, fld, fr, frd, rl, rld, rr, rrd);
+        base = new DrivetrainBase(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
 
         // Connect IMU.
         imu = hardwareMap.get(IMU.class, "imu");
@@ -51,17 +52,14 @@ public class MecanumFieldCentric implements Drivetrain {
         }
     }
 
-    public void zeroEncoders() {
-        robotCentric.zeroEncoders();
-    }
-
     public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
-        robotCentric.setDriveParams(turnSpeedMax, strafeCorrection);
+        this.turnSpeedMax = turnSpeedMax;
+        this.strafeCorrection = strafeCorrection;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        strafe *= robotCentric.strafeCorrection;
-        turn   *= robotCentric.turnSpeedMax;
+        strafe *= strafeCorrection;
+        turn   *= turnSpeedMax;
 
         // Quadratic controller sensitivity.
         drive  *= Math.abs(drive);
@@ -81,14 +79,10 @@ public class MecanumFieldCentric implements Drivetrain {
         double rr = (rotY + rotX - turn) / max;
 
         // Act.
-        robotCentric.frontLeft.setPower(fl);
-        robotCentric.frontRight.setPower(fr);
-        robotCentric.rearLeft.setPower(rl);
-        robotCentric.rearRight.setPower(rr);
-    }
-
-    public int[] getEncoderCounts() {
-        return robotCentric.getEncoderCounts();
+        base.frontLeft.setPower(fl);
+        base.frontRight.setPower(fr);
+        base.rearLeft.setPower(rl);
+        base.rearRight.setPower(rr);
     }
 
     public IMU getIMU() {

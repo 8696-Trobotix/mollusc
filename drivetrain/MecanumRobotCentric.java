@@ -3,7 +3,7 @@ Mecanum Robot Centric
 
 Drivetrain hardware class.
 
-vIX-XXX-XXIII
+vX-VIII-XXIII
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MecanumRobotCentric implements Drivetrain {
 
-    public DcMotorEx frontLeft, frontRight, rearLeft, rearRight;
+    public DrivetrainBase base;
     public double turnSpeedMax = 0.9, strafeCorrection = 1.1;
 
     public MecanumRobotCentric(
@@ -27,42 +27,12 @@ public class MecanumRobotCentric implements Drivetrain {
         String rl, DcMotorEx.Direction rld, 
         String rr, DcMotorEx.Direction rrd
     ) {
-        // Connect motors.
-        frontLeft  = hardwareMap.get(DcMotorEx.class, fl);
-        frontRight = hardwareMap.get(DcMotorEx.class, fr);
-        rearLeft   = hardwareMap.get(DcMotorEx.class, rl);
-        rearRight  = hardwareMap.get(DcMotorEx.class, rr);
-
-        // Set motor directions.
-        frontLeft.setDirection(fld);
-        frontRight.setDirection(frd);
-        rearLeft.setDirection(rld);
-        rearRight.setDirection(rrd);
-
-        // Set motors to brake.
-        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rearLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rearRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        base = new DrivetrainBase(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
 
         if (telemetry != null) {
             telemetry.log().add("Initialized robot centric hardware.");
             telemetry.update();
         }
-    }
-
-    public void zeroEncoders() {
-        // Reset encoder counts to zero and set run mode to by power.
-
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rearLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rearRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        
-        frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rearLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rearRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
@@ -87,19 +57,10 @@ public class MecanumRobotCentric implements Drivetrain {
         double rr = (drive + strafe - turn) / max;
 
         // Act.
-        frontLeft.setPower(fl);
-        frontRight.setPower(fr);
-        rearLeft.setPower(rl);
-        rearRight.setPower(rr);
-    }
-
-    public int[] getEncoderCounts() {
-        return new int[] {
-            frontLeft.getCurrentPosition(), 
-            frontRight.getCurrentPosition(), 
-            rearLeft.getCurrentPosition(), 
-            rearRight.getCurrentPosition()
-        };
+        base.frontLeft.setPower(fl);
+        base.frontRight.setPower(fr);
+        base.rearLeft.setPower(rl);
+        base.rearRight.setPower(rr);
     }
 
     public IMU getIMU() {
