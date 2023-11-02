@@ -9,7 +9,7 @@ public class DrivetrainBaseFourWheel {
 
     public double drivePowerMax = 1, turnPowerMax = 1;
 
-    public DrivetrainBase(
+    public DrivetrainBaseFourWheel(
         HardwareMap hardwareMap, 
         String fl, DcMotorEx.Direction fld, 
         String fr, DcMotorEx.Direction frd, 

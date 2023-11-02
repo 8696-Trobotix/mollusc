@@ -53,8 +53,8 @@ public class MecanumFieldCentric implements Drivetrain {
     }
 
     public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection) {
-        this.drivePowerMax    = drivePowerMax;
-        this.turnPowerMax     = turnPowerMax;
+        base.drivePowerMax    = drivePowerMax;
+        base.turnPowerMax     = turnPowerMax;
         this.strafeCorrection = strafeCorrection;
     }
 
@@ -64,8 +64,8 @@ public class MecanumFieldCentric implements Drivetrain {
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
 
-        drive  *= drivePowerMax;
-        turn   *= turnPowerMax;
+        drive  *= base.drivePowerMax;
+        turn   *= base.turnPowerMax;
         strafe *= strafeCorrection;
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
