@@ -3,7 +3,7 @@ Mecanum Field Centric
 
 Drivetrain hardware class.
 
-vX-XII-XXIII
+vXI-II-XXIII
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
@@ -19,10 +19,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumFieldCentric implements Drivetrain {
 
-    public DrivetrainBase base;
+    public DrivetrainBaseFourWheel base;
     public IMU imu;
 
-    public double turnSpeedMax = 0.9, strafeCorrection = 1.1;
+    public double strafeCorrection = 1.0;
 
     public MecanumFieldCentric(
         HardwareMap hardwareMap, 
@@ -35,7 +35,7 @@ public class MecanumFieldCentric implements Drivetrain {
             RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
             RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
     ) {
-        base = new DrivetrainBase(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
+        base = new DrivetrainBaseFourWheel(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
 
         // Connect IMU.
         imu = hardwareMap.get(IMU.class, "imu");
@@ -52,19 +52,21 @@ public class MecanumFieldCentric implements Drivetrain {
         }
     }
 
-    public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
-        this.turnSpeedMax = turnSpeedMax;
+    public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection) {
+        this.drivePowerMax    = drivePowerMax;
+        this.turnPowerMax     = turnPowerMax;
         this.strafeCorrection = strafeCorrection;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        strafe *= strafeCorrection;
-        turn   *= turnSpeedMax;
-
         // Quadratic controller sensitivity.
         drive  *= Math.abs(drive);
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
+
+        drive  *= drivePowerMax;
+        turn   *= turnPowerMax;
+        strafe *= strafeCorrection;
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
@@ -83,10 +85,6 @@ public class MecanumFieldCentric implements Drivetrain {
         base.frontRight.setPower(fr);
         base.rearLeft.setPower(rl);
         base.rearRight.setPower(rr);
-    }
-
-    public IMU getIMU() {
-        return imu;
     }
 }
 

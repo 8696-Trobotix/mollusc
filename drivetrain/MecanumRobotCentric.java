@@ -3,21 +3,20 @@ Mecanum Robot Centric
 
 Drivetrain hardware class.
 
-vX-VIII-XXIII
+vXI-II-XXIII
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MecanumRobotCentric implements Drivetrain {
 
-    public DrivetrainBase base;
-    public double turnSpeedMax = 0.9, strafeCorrection = 1.1;
+    public DrivetrainBaseFourWheel base;
+    public double strafeCorrection = 1.0;
 
     public MecanumRobotCentric(
         HardwareMap hardwareMap, 
@@ -27,7 +26,7 @@ public class MecanumRobotCentric implements Drivetrain {
         String rl, DcMotorEx.Direction rld, 
         String rr, DcMotorEx.Direction rrd
     ) {
-        base = new DrivetrainBase(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
+        base = new DrivetrainBaseFourWheel(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
 
         if (telemetry != null) {
             telemetry.log().add("Initialized robot centric hardware.");
@@ -35,19 +34,21 @@ public class MecanumRobotCentric implements Drivetrain {
         }
     }
 
-    public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
-        this.turnSpeedMax = turnSpeedMax;
+    public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection) {
+        this.drivePowerMax    = drivePowerMax;
+        this.turnPowerMax     = turnPowerMax;
         this.strafeCorrection = strafeCorrection;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        strafe *= strafeCorrection;
-        turn   *= turnSpeedMax;
-
         // Quadratic controller sensitivity.
         drive  *= Math.abs(drive);
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
+
+        drive  *= drivePowerMax;
+        turn   *= turnPowerMax;
+        strafe *= strafeCorrection;
 
         // Calculations.
         double max = Math.max(Math.abs(drive) + Math.abs(strafe) + Math.abs(turn), 1);
@@ -61,10 +62,6 @@ public class MecanumRobotCentric implements Drivetrain {
         base.frontRight.setPower(fr);
         base.rearLeft.setPower(rl);
         base.rearRight.setPower(rr);
-    }
-
-    public IMU getIMU() {
-        return null;
     }
 }
 

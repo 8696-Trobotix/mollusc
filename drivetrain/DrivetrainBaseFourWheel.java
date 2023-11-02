@@ -3,8 +3,11 @@ package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class DrivetrainBase {
+public class DrivetrainBaseFourWheel {
+
     public DcMotorEx frontLeft, frontRight, rearLeft, rearRight;
+
+    public double drivePowerMax = 1, turnPowerMax = 1;
 
     public DrivetrainBase(
         HardwareMap hardwareMap, 

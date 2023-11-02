@@ -4,11 +4,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 public interface Drivetrain {
 
-    public void setDriveParams(double turnSpeedMax, double strafeCorrection);
-
     public void drive(double drive, double strafe, double turn);
-
-    public IMU getIMU();
 }
 
 /*
