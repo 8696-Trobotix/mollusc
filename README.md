@@ -3,7 +3,7 @@
 > Requires `minSdkVersion 23` to be changed to `minSdk 24` in `build.common.gradle`.
 
 ## Usage
-Just as one would use any other external hardware class.
+Clone into `teamcode`, optionally add as a git submodule, and use just as one would use any other external hardware class.
 
 ## To Do
 - [ ] Clean up formatting if needed.

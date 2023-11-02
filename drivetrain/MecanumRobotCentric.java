@@ -3,21 +3,20 @@ Mecanum Robot Centric
 
 Drivetrain hardware class.
 
-vIX-XXX-XXIII
+vXI-II-XXIII
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MecanumRobotCentric implements Drivetrain {
 
-    public DcMotorEx frontLeft, frontRight, rearLeft, rearRight;
-    public double turnSpeedMax = 0.9, strafeCorrection = 1.1;
+    public DrivetrainBaseFourWheel base;
+    public double strafeCorrection = 1.0;
 
     public MecanumRobotCentric(
         HardwareMap hardwareMap, 
@@ -27,23 +26,7 @@ public class MecanumRobotCentric implements Drivetrain {
         String rl, DcMotorEx.Direction rld, 
         String rr, DcMotorEx.Direction rrd
     ) {
-        // Connect motors.
-        frontLeft  = hardwareMap.get(DcMotorEx.class, fl);
-        frontRight = hardwareMap.get(DcMotorEx.class, fr);
-        rearLeft   = hardwareMap.get(DcMotorEx.class, rl);
-        rearRight  = hardwareMap.get(DcMotorEx.class, rr);
-
-        // Set motor directions.
-        frontLeft.setDirection(fld);
-        frontRight.setDirection(frd);
-        rearLeft.setDirection(rld);
-        rearRight.setDirection(rrd);
-
-        // Set motors to brake.
-        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rearLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rearRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        base = new DrivetrainBaseFourWheel(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
 
         if (telemetry != null) {
             telemetry.log().add("Initialized robot centric hardware.");
@@ -51,33 +34,21 @@ public class MecanumRobotCentric implements Drivetrain {
         }
     }
 
-    public void zeroEncoders() {
-        // Reset encoder counts to zero and set run mode to by power.
-
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rearLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        rearRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        
-        frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rearLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        rearRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-    }
-
-    public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
-        this.turnSpeedMax = turnSpeedMax;
+    public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection) {
+        this.drivePowerMax    = drivePowerMax;
+        this.turnPowerMax     = turnPowerMax;
         this.strafeCorrection = strafeCorrection;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        strafe *= strafeCorrection;
-        turn   *= turnSpeedMax;
-
         // Quadratic controller sensitivity.
         drive  *= Math.abs(drive);
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
+
+        drive  *= drivePowerMax;
+        turn   *= turnPowerMax;
+        strafe *= strafeCorrection;
 
         // Calculations.
         double max = Math.max(Math.abs(drive) + Math.abs(strafe) + Math.abs(turn), 1);
@@ -87,23 +58,10 @@ public class MecanumRobotCentric implements Drivetrain {
         double rr = (drive + strafe - turn) / max;
 
         // Act.
-        frontLeft.setPower(fl);
-        frontRight.setPower(fr);
-        rearLeft.setPower(rl);
-        rearRight.setPower(rr);
-    }
-
-    public int[] getEncoderCounts() {
-        return new int[] {
-            frontLeft.getCurrentPosition(), 
-            frontRight.getCurrentPosition(), 
-            rearLeft.getCurrentPosition(), 
-            rearRight.getCurrentPosition()
-        };
-    }
-
-    public IMU getIMU() {
-        return null;
+        base.frontLeft.setPower(fl);
+        base.frontRight.setPower(fr);
+        base.rearLeft.setPower(rl);
+        base.rearRight.setPower(rr);
     }
 }
 
