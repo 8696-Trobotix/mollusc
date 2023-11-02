@@ -2,9 +2,8 @@
 Mecanum Field Centric
 
 Drivetrain hardware class.
-Based on top of MecanumRobotCentric.
 
-vIX-XXX-XXIII
+vXI-II-XXIII
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
@@ -20,8 +19,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumFieldCentric implements Drivetrain {
 
-    public MecanumRobotCentric robotCentric;
+    public DrivetrainBaseFourWheel base;
     public IMU imu;
+
+    public double strafeCorrection = 1.0;
 
     public MecanumFieldCentric(
         HardwareMap hardwareMap, 
@@ -34,7 +35,7 @@ public class MecanumFieldCentric implements Drivetrain {
             RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
             RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
     ) {
-        robotCentric = new MecanumRobotCentric(hardwareMap, null, fl, fld, fr, frd, rl, rld, rr, rrd);
+        base = new DrivetrainBaseFourWheel(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
 
         // Connect IMU.
         imu = hardwareMap.get(IMU.class, "imu");
@@ -51,22 +52,21 @@ public class MecanumFieldCentric implements Drivetrain {
         }
     }
 
-    public void zeroEncoders() {
-        robotCentric.zeroEncoders();
-    }
-
-    public void setDriveParams(double turnSpeedMax, double strafeCorrection) {
-        robotCentric.setDriveParams(turnSpeedMax, strafeCorrection);
+    public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection) {
+        this.drivePowerMax    = drivePowerMax;
+        this.turnPowerMax     = turnPowerMax;
+        this.strafeCorrection = strafeCorrection;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        strafe *= robotCentric.strafeCorrection;
-        turn   *= robotCentric.turnSpeedMax;
-
         // Quadratic controller sensitivity.
         drive  *= Math.abs(drive);
         strafe *= Math.abs(strafe);
         turn   *= Math.abs(turn);
+
+        drive  *= drivePowerMax;
+        turn   *= turnPowerMax;
+        strafe *= strafeCorrection;
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
@@ -81,18 +81,10 @@ public class MecanumFieldCentric implements Drivetrain {
         double rr = (rotY + rotX - turn) / max;
 
         // Act.
-        robotCentric.frontLeft.setPower(fl);
-        robotCentric.frontRight.setPower(fr);
-        robotCentric.rearLeft.setPower(rl);
-        robotCentric.rearRight.setPower(rr);
-    }
-
-    public int[] getEncoderCounts() {
-        return robotCentric.getEncoderCounts();
-    }
-
-    public IMU getIMU() {
-        return imu;
+        base.frontLeft.setPower(fl);
+        base.frontRight.setPower(fr);
+        base.rearLeft.setPower(rl);
+        base.rearRight.setPower(rr);
     }
 }
 
