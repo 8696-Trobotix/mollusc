@@ -41,10 +41,6 @@ public class MecanumRobotCentric implements Drivetrain {
     }
 
     public void drive(double drive, double strafe, double turn) {
-        // Quadratic controller sensitivity.
-        drive  *= Math.abs(drive);
-        strafe *= Math.abs(strafe);
-        turn   *= Math.abs(turn);
 
         drive  *= base.drivePowerMax;
         turn   *= base.turnPowerMax;
