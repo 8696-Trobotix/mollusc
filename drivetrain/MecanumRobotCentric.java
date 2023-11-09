@@ -41,7 +41,6 @@ public class MecanumRobotCentric implements Drivetrain {
     }
 
     public void drive(double drive, double strafe, double turn) {
-
         drive  *= base.drivePowerMax;
         turn   *= base.turnPowerMax;
         strafe *= strafeCorrection;
