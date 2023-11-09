@@ -23,6 +23,7 @@ public class MecanumFieldCentric implements Drivetrain {
     public IMU imu;
 
     public double strafeCorrection = 1.0;
+    public double imuOffset = 0;
 
     public MecanumFieldCentric(
         HardwareMap hardwareMap, 
@@ -63,7 +64,7 @@ public class MecanumFieldCentric implements Drivetrain {
         turn   *= base.turnPowerMax;
         strafe *= strafeCorrection;
 
-        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + imuOffset;
 
         // Calculations based on GM0.
         double rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
