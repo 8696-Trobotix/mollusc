@@ -1,10 +1,13 @@
-package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
+package org.firstinspires.ftc.teamcode.mollusc.exception;
 
-import com.qualcomm.robotcore.hardware.IMU;
+public class AssetRetrievalException extends Exception {
 
-public interface Drivetrain {
-
-    public void drive(double drive, double strafe, double turn);
+    public AssetRetrievalException(String message) {
+        super(message);
+    }
+    public AssetRetrievalException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
 /*

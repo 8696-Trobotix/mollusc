@@ -1,43 +1,25 @@
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class DrivetrainBaseFourWheel {
 
     public DcMotorEx frontLeft, frontRight, rearLeft, rearRight;
 
-    public double drivePowerMax = 1, turnPowerMax = 1;
-
     public DrivetrainBaseFourWheel(
-        HardwareMap hardwareMap, 
-        String fl, DcMotorEx.Direction fld, 
-        String fr, DcMotorEx.Direction frd, 
-        String rl, DcMotorEx.Direction rld, 
-        String rr, DcMotorEx.Direction rrd
+        DcMotorEx frontLeft, 
+        DcMotorEx frontRight, 
+        DcMotorEx rearLeft, 
+        DcMotorEx rearRight
     ) {
-        // Connect motors.
-        frontLeft  = hardwareMap.get(DcMotorEx.class, fl);
-        frontRight = hardwareMap.get(DcMotorEx.class, fr);
-        rearLeft   = hardwareMap.get(DcMotorEx.class, rl);
-        rearRight  = hardwareMap.get(DcMotorEx.class, rr);
-
-        // Set motor directions.
-        frontLeft.setDirection(fld);
-        frontRight.setDirection(frd);
-        rearLeft.setDirection(rld);
-        rearRight.setDirection(rrd);
-
-        // Set motors to brake.
-        frontLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rearLeft.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        rearRight.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        this.frontLeft  = frontLeft;
+        this.frontRight = frontRight;
+        this.rearLeft   = rearLeft;
+        this.rearRight  = rearRight;
     }
 
+    // Reset encoder counts to zero and set run mode to by power.
     public void zeroEncoders() {
-        // Reset encoder counts to zero and set run mode to by power.
-
         frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         rearLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -48,7 +30,8 @@ public class DrivetrainBaseFourWheel {
         rearLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         rearRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }
-
+    
+    // Order: `frontLeft`, `frontRight`, `rearLeft`, `rearRight`
     public int[] getEncoderCounts() {
         return new int[] {
             frontLeft.getCurrentPosition(), 
