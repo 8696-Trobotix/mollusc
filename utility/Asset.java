@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
+
 import org.firstinspires.ftc.teamcode.mollusc.exception.AssetRetrievalException;
 
 import java.util.stream.Collectors;
 import java.util.LinkedList;
 
 import java.io.InputStreamReader;
-import java.io.FileInputStream;
 import java.io.BufferedReader;
 
 public class Asset {
@@ -15,8 +16,9 @@ public class Asset {
 
     public Asset(String path) throws AssetRetrievalException {
         try {
-            FileInputStream fileInputStream = new FileInputStream(path);
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            InputStreamReader inputStreamReader = new InputStreamReader(
+                Mollusc.opMode.appContext.getAssets().open(path)
+            );
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String data = bufferedReader.lines().collect(Collectors.joining("\n"));
             bufferedReader.close();

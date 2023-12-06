@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -11,13 +13,13 @@ public class Configuration {
 
     private HashMap<String, String> configData = new HashMap<>();
 
-    public Configuration(OpMode opMode) {
-        this(opMode, "config.txt")
+    public Configuration() {
+        this(Mollusc.opMode, "config.txt")
     }
     public Configuration(OpMode opMode, String configFileName) {
         this.opmode = opMode;
 
-        Asset asset = new Asset("mollusc/" + configFileName);
+        Asset asset = new Asset(opMode.hardwareMap.appContext, "mollusc/" + configFileName);
         String[] lines = asset.getLines();
 
         for (String line : lines) {

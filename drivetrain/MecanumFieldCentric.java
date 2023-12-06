@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-public class MecanumFieldCentric {
+public class MecanumFieldCentric implements Drivetrain {
 
     public DrivetrainBaseFourWheel base;
     public IMU imu;

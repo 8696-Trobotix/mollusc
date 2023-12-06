@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-public class MecanumRobotCentric {
+public class MecanumRobotCentric implements Drivetrain {
 
     public DrivetrainBaseFourWheel base;
 

@@ -1,16 +1,35 @@
-package org.firstinspires.ftc.teamcode.mollusc.utility;
+package org.firstinspires.ftc.teamcode.mollusc.wrapper;
+
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class Make {
 
     private HardwareMap hardwareMap;
 
-    public Make(HardwareMap hardwareMap) {
-        this.hardwareMap = hardwareMap;
+    public Make() {
+        this.hardwareMap = Mollusc.opMode.hardwareMap;
+    }
+
+    public IMU imu(
+        String name, 
+        RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
+        RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
+    ) {
+        IMU ret = hardwareMap.get(IMU.class, name);
+        RevHubOrientationOnRobot IMUOrientation = new RevHubOrientationOnRobot(
+            logoFacingDirection, usbFacingDirection
+        );
+        imu.initialize(new IMU.Parameters(IMUOrientation));
+        ret.resetYaw();
+        return ret;
     }
 
     // Make a default motor with a specific direction. Also brakes by default.
@@ -21,16 +40,16 @@ public class Make {
         return ret;
     }
 
-    // Make a default servo.
-    public servo(String name, Servo.Direction direction) {
-        Servo ret = hardwareMap.get(Servo.class, name);
+    // Make a default continuous rotation servo with a specific direction.
+    public crservo(String name, CRServo.Direction direction) {
+        CRServo ret = hardwareMap.get(CRServo.class, name);
         ret.setDirection(direction);
         return ret;
     }
 
-    // Make a default continuous rotation servo with a specific direction.
-    public crservo(String name, CRServo.Direction direction) {
-        CRServo ret = hardwareMap.get(CRServo.class, name);
+    // Make a default servo.
+    public servo(String name, Servo.Direction direction) {
+        Servo ret = hardwareMap.get(Servo.class, name);
         ret.setDirection(direction);
         return ret;
     }
