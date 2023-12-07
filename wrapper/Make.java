@@ -12,13 +12,13 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class Make {
 
-    private HardwareMap hardwareMap;
+    private static HardwareMap hardwareMap;
 
     public Make() {
-        this.hardwareMap = Mollusc.opMode.hardwareMap;
+        hardwareMap = Mollusc.opMode.hardwareMap;
     }
 
-    public IMU imu(
+    public static IMU imu(
         String name, 
         RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
         RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
@@ -27,13 +27,13 @@ public class Make {
         RevHubOrientationOnRobot IMUOrientation = new RevHubOrientationOnRobot(
             logoFacingDirection, usbFacingDirection
         );
-        imu.initialize(new IMU.Parameters(IMUOrientation));
+        ret.initialize(new IMU.Parameters(IMUOrientation));
         ret.resetYaw();
         return ret;
     }
 
     // Make a default motor with a specific direction. Also brakes by default.
-    public DcMotorEx motor(String name, DcMotorEx.Direction direction) {
+    public static DcMotorEx motor(String name, DcMotorEx.Direction direction) {
         DcMotorEx ret = hardwareMap.get(DcMotorEx.class, name);
         ret.setDirection(direction);
         ret.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
@@ -41,14 +41,14 @@ public class Make {
     }
 
     // Make a default continuous rotation servo with a specific direction.
-    public crservo(String name, CRServo.Direction direction) {
+    public static CRServo crservo(String name, CRServo.Direction direction) {
         CRServo ret = hardwareMap.get(CRServo.class, name);
         ret.setDirection(direction);
         return ret;
     }
 
     // Make a default servo.
-    public servo(String name, Servo.Direction direction) {
+    public static Servo servo(String name, Servo.Direction direction) {
         Servo ret = hardwareMap.get(Servo.class, name);
         ret.setDirection(direction);
         return ret;

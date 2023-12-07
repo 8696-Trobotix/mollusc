@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc.wrapper;
 
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class Encoder {
@@ -7,10 +9,10 @@ public class Encoder {
     private DcMotorEx encoder;
 
     private double multiplier;
-    private ticksPerRevolution;
+    private int ticksPerRevolution;
 
     public Encoder(String name, double multiplier, int ticksPerRevolution) {
-        this.encoder = Mollusc.hardwareMap.get(DcMotorEx.class, name);
+        this.encoder = Mollusc.opMode.hardwareMap.get(DcMotorEx.class, name);
         this.multiplier = multiplier;
         this.ticksPerRevolution = ticksPerRevolution;
 
@@ -22,10 +24,10 @@ public class Encoder {
     }
 
     public int getTicks() {
-        return encoder.getCurrentPosition() * multiplier;
+        return (int)(encoder.getCurrentPosition() * multiplier);
     }
     public double getRevolutions() {
-        return getTicks() / ticksPerRevolution;
+        return (double)getTicks() / ticksPerRevolution;
     }
 }
 

@@ -11,14 +11,14 @@ public class MecanumRobotCentric implements Drivetrain {
     public MecanumRobotCentric(
         DrivetrainBaseFourWheel base
     ) {
-        base = base;
+        this.base = base;
     }
 
     // Scales can be thought of as maximums, where increase is linear from 0 --> [scale] as 0 --> 1.
     public void setDriveParams(double driveScaleMax, double strafeScaleMax, double turnScaleMax) {
-        driveScaleMax  = driveScaleMax;
-        strafeScaleMax = strafeScaleMax;
-        turnScaleMax   = turnScaleMax;
+        this.driveScaleMax  = driveScaleMax;
+        this.strafeScaleMax = strafeScaleMax;
+        this.turnScaleMax   = turnScaleMax;
     }
 
     public void drive(double drive, double strafe, double turn) {
@@ -33,10 +33,10 @@ public class MecanumRobotCentric implements Drivetrain {
         double rl = (drive - strafe + turn) / max;
         double rr = (drive + strafe - turn) / max;
 
-        frontLeft.setPower(fl);
-        frontRight.setPower(fr);
-        rearLeft.setPower(rl);
-        rearRight.setPower(rr);
+        base.frontLeft.setPower(fl);
+        base.frontRight.setPower(fr);
+        base.rearLeft.setPower(rl);
+        base.rearRight.setPower(rr);
     }
 }
 

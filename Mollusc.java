@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode.mollusc;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class Mollusc {
-    
+
     public static OpMode opMode;
 
     public static void init(OpMode opMode) {
-        this.opMode = opMode;
+        opMode = opMode;
     }
 }
 

@@ -17,7 +17,7 @@ public class Asset {
     public Asset(String path) throws AssetRetrievalException {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(
-                Mollusc.opMode.appContext.getAssets().open(path)
+                Mollusc.opMode.hardwareMap.appContext.getAssets().open(path)
             );
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String data = bufferedReader.lines().collect(Collectors.joining("\n"));

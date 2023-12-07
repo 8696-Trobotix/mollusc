@@ -47,10 +47,10 @@ public class MecanumFieldCentric implements Drivetrain {
         double rl = (rotY - rotX + turn) / max;
         double rr = (rotY + rotX - turn) / max;
 
-        frontLeft.setPower(fl);
-        frontRight.setPower(fr);
-        rearLeft.setPower(rl);
-        rearRight.setPower(rr);
+        base.frontLeft.setPower(fl);
+        base.frontRight.setPower(fr);
+        base.rearLeft.setPower(rl);
+        base.rearRight.setPower(rr);
     }
 }
 
