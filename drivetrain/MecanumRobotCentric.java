@@ -9,12 +9,9 @@ public class MecanumRobotCentric implements Drivetrain {
     public double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
 
     public MecanumRobotCentric(
-        DcMotorEx frontLeft, 
-        DcMotorEx frontRight, 
-        DcMotorEx rearLeft, 
-        DcMotorEx rearRight
+        DrivetrainBaseFourWheel base
     ) {
-        base = new DrivetrainBaseFourWheel(frontLeft, frontRight, rearLeft, rearRight);
+        base = base;
     }
 
     // Scales can be thought of as maximums, where increase is linear from 0 --> [scale] as 0 --> 1.

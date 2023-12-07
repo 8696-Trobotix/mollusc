@@ -14,13 +14,10 @@ public class MecanumFieldCentric implements Drivetrain {
     public double yawOffset = 0;
 
     public MecanumFieldCentric(
-        DcMotorEx frontLeft, 
-        DcMotorEx frontRight, 
-        DcMotorEx rearLeft, 
-        DcMotorEx rearRight, 
+        DrivetrainBaseFourWheel base, 
         IMU imu
     ) {
-        base = new DrivetrainBaseFourWheel(frontLeft, frontRight, rearLeft, rearRight);
+        this.base = base;
         this.imu = imu;
     }
 
