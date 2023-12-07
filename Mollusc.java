@@ -1,8 +1,13 @@
-package org.firstinspires.ftc.teamcode.mollusc.utilities;
+package org.firstinspires.ftc.teamcode.mollusc;
 
-public class Controls {
-    public static double quadratic(double value) {
-        return value * Math.abs(value);
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+public class Mollusc {
+
+    public static OpMode opMode;
+
+    public static void init(OpMode opMode) {
+        opMode = opMode;
     }
 }
 

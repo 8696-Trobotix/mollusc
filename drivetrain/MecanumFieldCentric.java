@@ -1,20 +1,8 @@
-/*
-Mecanum Field Centric
-
-Drivetrain hardware class.
-
-vXI-II-XXIII
-*/
-
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumFieldCentric implements Drivetrain {
@@ -22,62 +10,43 @@ public class MecanumFieldCentric implements Drivetrain {
     public DrivetrainBaseFourWheel base;
     public IMU imu;
 
-    public double strafeCorrection = 1.0;
+    public double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
     public double yawOffset = 0;
 
     public MecanumFieldCentric(
-        HardwareMap hardwareMap, 
-        Telemetry telemetry, 
-        String fl, DcMotorEx.Direction fld, 
-        String fr, DcMotorEx.Direction frd, 
-        String rl, DcMotorEx.Direction rld, 
-        String rr, DcMotorEx.Direction rrd, 
-        String imuName, 
-            RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
-            RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
+        DrivetrainBaseFourWheel base, 
+        IMU imu
     ) {
-        base = new DrivetrainBaseFourWheel(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
-
-        // Connect IMU.
-        imu = hardwareMap.get(IMU.class, "imu");
-
-        // Configure IMU.
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = logoFacingDirection;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection = usbFacingDirection;
-        RevHubOrientationOnRobot IMUOrientation = new RevHubOrientationOnRobot(logoDirection, usbDirection);
-        imu.initialize(new IMU.Parameters(IMUOrientation));
-
-        if (telemetry != null) {
-            telemetry.log().add("Initialized field centric hardware.");
-            telemetry.update();
-        }
+        this.base = base;
+        this.imu = imu;
     }
 
-    public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection, double yawOffset) {
-        base.drivePowerMax    = drivePowerMax;
-        base.turnPowerMax     = turnPowerMax;
-        this.strafeCorrection = strafeCorrection;
-        this.yawOffset        = yawOffset;
+    // Scales can be thought of as maximums, where increase is linear from 0 --> [scale] as 0 --> 1.
+    // `yawOffset` is in radians.
+    public void setDriveParams(double driveScaleMax, double strafeScaleMax, double turnScaleMax, double yawOffset) {
+        this.driveScaleMax  = driveScaleMax;
+        this.strafeScaleMax = strafeScaleMax;
+        this.turnScaleMax   = turnScaleMax;
+        this.yawOffset      = yawOffset;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        drive  *= base.drivePowerMax;
-        turn   *= base.turnPowerMax;
-        strafe *= strafeCorrection;
+        drive  *= driveScaleMax;
+        strafe *= strafeScaleMax;
+        turn   *= turnScaleMax;
 
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + yawOffset;
 
         // Calculations based on GM0.
         double rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
         double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
-        // Normalize.
+        // Normalize. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
         double fl = (rotY + rotX + turn) / max;
         double fr = (rotY - rotX - turn) / max;
         double rl = (rotY - rotX + turn) / max;
         double rr = (rotY + rotX - turn) / max;
 
-        // Act.
         base.frontLeft.setPower(fl);
         base.frontRight.setPower(fr);
         base.rearLeft.setPower(rl);

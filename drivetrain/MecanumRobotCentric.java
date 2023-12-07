@@ -1,58 +1,38 @@
-/*
-Mecanum Robot Centric
-
-Drivetrain hardware class.
-
-vXI-II-XXIII
-*/
-
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class MecanumRobotCentric implements Drivetrain {
 
     public DrivetrainBaseFourWheel base;
-    public double strafeCorrection = 1.0;
+
+    public double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
 
     public MecanumRobotCentric(
-        HardwareMap hardwareMap, 
-        Telemetry telemetry, 
-        String fl, DcMotorEx.Direction fld, 
-        String fr, DcMotorEx.Direction frd, 
-        String rl, DcMotorEx.Direction rld, 
-        String rr, DcMotorEx.Direction rrd
+        DrivetrainBaseFourWheel base
     ) {
-        base = new DrivetrainBaseFourWheel(hardwareMap, fl, fld, fr, frd, rl, rld, rr, rrd);
-
-        if (telemetry != null) {
-            telemetry.log().add("Initialized robot centric hardware.");
-            telemetry.update();
-        }
+        this.base = base;
     }
 
-    public void setDriveParams(double drivePowerMax, double turnPowerMax, double strafeCorrection) {
-        base.drivePowerMax    = drivePowerMax;
-        base.turnPowerMax     = turnPowerMax;
-        this.strafeCorrection = strafeCorrection;
+    // Scales can be thought of as maximums, where increase is linear from 0 --> [scale] as 0 --> 1.
+    public void setDriveParams(double driveScaleMax, double strafeScaleMax, double turnScaleMax) {
+        this.driveScaleMax  = driveScaleMax;
+        this.strafeScaleMax = strafeScaleMax;
+        this.turnScaleMax   = turnScaleMax;
     }
 
     public void drive(double drive, double strafe, double turn) {
-        drive  *= base.drivePowerMax;
-        turn   *= base.turnPowerMax;
-        strafe *= strafeCorrection;
+        drive  *= driveScaleMax;
+        strafe *= strafeScaleMax;
+        turn   *= turnScaleMax;
 
-        // Calculations.
+        // Calculations. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(drive) + Math.abs(strafe) + Math.abs(turn), 1);
         double fl = (drive + strafe + turn) / max;
         double fr = (drive - strafe - turn) / max;
         double rl = (drive - strafe + turn) / max;
         double rr = (drive + strafe - turn) / max;
 
-        // Act.
         base.frontLeft.setPower(fl);
         base.frontRight.setPower(fr);
         base.rearLeft.setPower(rl);

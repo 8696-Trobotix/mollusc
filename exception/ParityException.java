@@ -1,8 +1,13 @@
-package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
+package org.firstinspires.ftc.teamcode.mollusc.exception;
 
-public interface Drivetrain {
+public class ParityException extends Exception {
 
-    public void drive(double drive, double strafe, double turn);
+    public ParityException(String message) {
+        super(message);
+    }
+    public ParityException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
 /*

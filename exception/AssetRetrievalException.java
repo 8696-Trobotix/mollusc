@@ -1,8 +1,13 @@
-package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
+package org.firstinspires.ftc.teamcode.mollusc.exception;
 
-public interface Drivetrain {
+public class AssetRetrievalException extends Exception {
 
-    public void drive(double drive, double strafe, double turn);
+    public AssetRetrievalException(String message) {
+        super(message);
+    }
+    public AssetRetrievalException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
 /*
