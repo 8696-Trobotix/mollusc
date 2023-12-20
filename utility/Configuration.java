@@ -43,10 +43,19 @@ public class Configuration {
     }
     // Returns true if `key` is present but maps to null.
     public boolean noValue(String key) {
-        return containsKey(key) ? get(key) == null : false;
+        return containsKey(key) ? configData.get(key) == null : false;
     }
-    public String get(String key) {
+    public String getString(String key) {
         return configData.get(key);
+    }
+    public boolean getBoolean(String key) {
+        return Boolean.parseBoolean(getString(key));
+    }
+    public int getInteger(String key) {
+        return Integer.parseInt(getString(key));
+    }
+    public double getDouble(String key) {
+        return Double.parseDouble(getString(key));
     }
 
     private static LinearOpMode useLinearOpMode() throws ParityException {
@@ -56,10 +65,10 @@ public class Configuration {
         return (LinearOpMode)Mollusc.opMode;
     }
 
-    public static boolean getBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue) throws ParityException {
-        return getBoolean(caption, trueLabel, falseLabel, defaultValue, "(Locked) ");
+    public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue) throws ParityException {
+        return inputBoolean(caption, trueLabel, falseLabel, defaultValue, "(Locked) ");
     }
-    public static boolean getBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue, String lockLabel) throws ParityException {
+    public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         boolean ret = defaultValue;
@@ -89,10 +98,10 @@ public class Configuration {
         return ret;
     }
 
-    public static int getInteger(String caption, int defaultValue, double holdWait) throws ParityException {
-        return getInteger(caption, defaultValue, holdWait, "(Locked) ", null);
+    public static int inputInteger(String caption, int defaultValue, double holdWait) throws ParityException {
+        return inputInteger(caption, defaultValue, holdWait, "(Locked) ", null);
     }
-    public static int getInteger(String caption, int defaultValue, double holdWait, String lockLabel, String[] labels) throws ParityException {
+    public static int inputInteger(String caption, int defaultValue, double holdWait, String lockLabel, String[] labels) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         int ret = defaultValue;
@@ -122,10 +131,10 @@ public class Configuration {
         return ret;
     }
 
-    public static double getDouble(String caption, int defaultValue, double holdWait, double delta) throws ParityException {
-        return getDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
+    public static double inputDouble(String caption, int defaultValue, double holdWait, double delta) throws ParityException {
+        return inputDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
     }
-    public static double getDouble(String caption, int defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
+    public static double inputDouble(String caption, int defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         double ret = defaultValue;
