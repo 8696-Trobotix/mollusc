@@ -9,6 +9,10 @@ public class Mollusc {
     public static void init(OpMode opMode) {
         opMode = opMode;
     }
+
+    public static void deinit() {
+        opMode = null;
+    }
 }
 
 /*
