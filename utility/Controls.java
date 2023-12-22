@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class Controls {
 
-    private static HashMap<String, Boolean> singlePressMarkers = new HashMap<>();
-    private static HashMap<String, ElapsedTime> holdMarkers    = new HashMap<>();
+    public static HashMap<String, Boolean> singlePressMarkers = new HashMap<>();
+    public static HashMap<String, ElapsedTime> holdMarkers    = new HashMap<>();
 
     // Squares `value` while retaining sign. Useful for more natural joystick feel.
     public static double quadratic(double value) {
