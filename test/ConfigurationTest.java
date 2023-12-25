@@ -60,9 +60,12 @@ public class ConfigurationTest extends LinearOpMode {
             return;
         }
         try {
-            gentleAssert(Configuration.inputInteger("Expected 5", 0, 0.5) == 5);
-            gentleAssert(Configuration.inputDouble("Expected 5.0", 0, 0.5, 0.1) == 5.0);
-            gentleAssert(Configuration.inputBoolean("Expected true", "true", "false", false));    
+            gentleAssert(Configuration.inputInteger("Expected 5", 0, 0.5, 1) == 5);
+            gentleAssert(Configuration.inputDouble("Expected 5.0", 0, 0.5, 0.5) == 5.0);
+            gentleAssert(Configuration.inputBoolean("Expected true", "true", "false", false));
+
+            String[] testLabels = new String[] {"test1", "test2", "test3"};
+            Configuration.inputInteger("Should go from test1 to test3.", 0, 0.5, 1, testLabels, "(Locked) ");
         } catch (Exception e) {
             telemetry.log().add(e.getMessage());
             gentleAssert(false);
