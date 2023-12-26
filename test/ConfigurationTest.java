@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc.tests;
 
 import org.firstinspires.ftc.teamcode.mollusc.utility.*;
+import org.firstinspires.ftc.teamcode.test.Test;
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -64,8 +65,9 @@ public class ConfigurationTest extends LinearOpMode {
             gentleAssert(Configuration.inputDouble("Expected 5.0", 0, 0.5, 0.5) == 5.0);
             gentleAssert(Configuration.inputBoolean("Expected true", "true", "false", false));
 
-            String[] testLabels = new String[] {"test1", "test2", "test3"};
-            Configuration.inputInteger("Should go from test1 to test3.", 0, 0.5, 1, testLabels, "(Locked) ");
+            TestEnum[] testLabels = new TestEnum[] {TestEnum.ONE, TestEnum.TWO, TestEnum.THREE};
+            int r = Configuration.inputInteger("Should go from test1 to test3.", 0, 0.5, 1, testLabels);
+            TestEnum result = testLabels[r];
         } catch (Exception e) {
             telemetry.log().add(e.getMessage());
             gentleAssert(false);
@@ -76,6 +78,10 @@ public class ConfigurationTest extends LinearOpMode {
         waitForStart();
 
         Mollusc.deinit();
+    }
+
+    private enum TestEnum {
+        ONE, TWO, THREE
     }
 
     private boolean startTest(String name) {

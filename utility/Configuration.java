@@ -101,7 +101,10 @@ public class Configuration {
     public static int inputInteger(String caption, int defaultValue, double holdWait, int delta) throws ParityException {
         return inputInteger(caption, defaultValue, holdWait, delta, null, "(Locked) ");
     }
-    public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, String[] labels, String lockLabel) throws ParityException {
+    public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, Object[] labels) throws ParityException {
+        return inputInteger(caption, defaultValue, holdWait, delta, labels, "(Locked) ");
+    }
+    public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, Object[] labels, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         int ret = defaultValue;
