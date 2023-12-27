@@ -43,10 +43,19 @@ public class Configuration {
     }
     // Returns true if `key` is present but maps to null.
     public boolean noValue(String key) {
-        return containsKey(key) ? get(key) == null : false;
+        return containsKey(key) ? configData.get(key) == null : false;
     }
-    public String get(String key) {
+    public String getString(String key) {
         return configData.get(key);
+    }
+    public boolean getBoolean(String key) {
+        return Boolean.parseBoolean(getString(key));
+    }
+    public int getInteger(String key) {
+        return Integer.parseInt(getString(key));
+    }
+    public double getDouble(String key) {
+        return Double.parseDouble(getString(key));
     }
 
     private static LinearOpMode useLinearOpMode() throws ParityException {
@@ -56,14 +65,14 @@ public class Configuration {
         return (LinearOpMode)Mollusc.opMode;
     }
 
-    public static boolean getBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue) throws ParityException {
-        return getBoolean(caption, trueLabel, falseLabel, defaultValue, "(Locked) ");
+    public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue) throws ParityException {
+        return inputBoolean(caption, trueLabel, falseLabel, defaultValue, "(Locked) ");
     }
-    public static boolean getBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue, String lockLabel) throws ParityException {
+    public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         boolean ret = defaultValue;
-        Telemetry.Item item = opMode.telemetry.addData(caption, ret ? trueLabel : falseLabel);
+        Telemetry.Item item = opMode.telemetry.addData(caption, "");
         item.setRetained(true);
 
         while (!opMode.gamepad1.a && !opMode.isStopRequested()) {
@@ -89,25 +98,28 @@ public class Configuration {
         return ret;
     }
 
-    public static int getInteger(String caption, int defaultValue, double holdWait) throws ParityException {
-        return getInteger(caption, defaultValue, holdWait, "(Locked) ", null);
+    public static int inputInteger(String caption, int defaultValue, double holdWait, int delta) throws ParityException {
+        return inputInteger(caption, defaultValue, holdWait, delta, null, "(Locked) ");
     }
-    public static int getInteger(String caption, int defaultValue, double holdWait, String lockLabel, String[] labels) throws ParityException {
+    public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, Object[] labels) throws ParityException {
+        return inputInteger(caption, defaultValue, holdWait, delta, labels, "(Locked) ");
+    }
+    public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, Object[] labels, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         int ret = defaultValue;
-        Telemetry.Item item = opMode.telemetry.addData(caption, labels == null ? ret : labels[ret % labels.length]);
+        Telemetry.Item item = opMode.telemetry.addData(caption, "");
         item.setRetained(true);
 
         while (!opMode.gamepad1.a && !opMode.isStopRequested()) {
-            item.setValue(ret);
+            item.setValue(labels == null ? ret : labels[ret % labels.length]);
             opMode.telemetry.update();
 
             if (Controls.spacedHold("_sh1", opMode.gamepad1.dpad_up, holdWait)) {
-                ++ret;
+                ret += delta;
             }
             else if (Controls.spacedHold("_sh2", opMode.gamepad1.dpad_down, holdWait)) {
-                --ret;
+                ret -= delta;
             }
         }
         while (opMode.gamepad1.a) {
@@ -119,17 +131,17 @@ public class Configuration {
 
         item.setRetained(false);
 
-        return ret;
+        return labels == null ? ret : ret % labels.length;
     }
 
-    public static double getDouble(String caption, int defaultValue, double holdWait, double delta) throws ParityException {
-        return getDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
+    public static double inputDouble(String caption, int defaultValue, double holdWait, double delta) throws ParityException {
+        return inputDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
     }
-    public static double getDouble(String caption, int defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
+    public static double inputDouble(String caption, int defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         double ret = defaultValue;
-        Telemetry.Item item = opMode.telemetry.addData(caption, ret);
+        Telemetry.Item item = opMode.telemetry.addData(caption, "");
         item.setRetained(true);
 
         while (!opMode.gamepad1.a && !opMode.isStopRequested()) {

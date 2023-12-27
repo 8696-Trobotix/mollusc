@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc;
 
+import org.firstinspires.ftc.teamcode.mollusc.utility.*;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class Mollusc {
@@ -8,6 +10,12 @@ public class Mollusc {
 
     public static void init(OpMode opMode) {
         opMode = opMode;
+        Controls.singlePressMarkers.clear();
+        Controls.holdMarkers.clear();
+    }
+
+    public static void deinit() {
+        opMode = null;
     }
 }
 
