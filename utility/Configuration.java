@@ -23,6 +23,10 @@ public class Configuration {
 
         String[] lines = asset.getLines();
 
+//        for (String line : lines) {
+//            Mollusc.opMode.telemetry.log().add(line);
+//        }
+
         for (String line : lines) {
             line = line.trim();
             if (line.isEmpty() || line.startsWith("//")) {
