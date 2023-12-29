@@ -19,6 +19,15 @@ public class Encoder {
         reset();
     }
 
+    public Encoder(DcMotorEx motor, double multiplier, int ticksPerRevolution) {
+        this.encoder = motor;
+        this.multiplier = multiplier;
+        this.ticksPerRevolution = ticksPerRevolution;
+
+        reset();
+        encoder.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     public void reset() {
         encoder.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }

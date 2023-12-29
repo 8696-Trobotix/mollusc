@@ -8,8 +8,8 @@ public class Mollusc {
 
     public static OpMode opMode;
 
-    public static void init(OpMode opMode) {
-        opMode = opMode;
+    public static void init(OpMode currentOpMode) {
+        opMode = currentOpMode;
         Controls.singlePressMarkers.clear();
         Controls.holdMarkers.clear();
     }

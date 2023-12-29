@@ -20,7 +20,7 @@ public class Asset {
                 Mollusc.opMode.hardwareMap.appContext.getAssets().open(path)
             );
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String data = bufferedReader.lines().collect(Collectors.joining("\n"));
+            data = bufferedReader.lines().collect(Collectors.joining("\n"));
             bufferedReader.close();
         }
         catch (Exception e) {
