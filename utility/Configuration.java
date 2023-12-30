@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
+import org.firstinspires.ftc.teamcode.mollusc.exception.ConfigValueMissingException;
 import org.firstinspires.ftc.teamcode.mollusc.exception.AssetRetrievalException;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
@@ -49,16 +50,20 @@ public class Configuration {
     public boolean noValue(String key) {
         return containsKey(key) ? configData.get(key) == null : false;
     }
-    public String getString(String key) {
-        return configData.get(key);
+    public String getString(String key) throws ConfigValueMissingException {
+        String value = configData.get(key);
+        if (value == null) {
+            throw new ConfigValueMissingException("Missing configuration value for key: " + key);
+        }
+        return value;
     }
-    public boolean getBoolean(String key) {
+    public boolean getBoolean(String key) throws ConfigValueMissingException {
         return Boolean.parseBoolean(getString(key));
     }
-    public int getInteger(String key) {
+    public int getInteger(String key) throws ConfigValueMissingException {
         return Integer.parseInt(getString(key));
     }
-    public double getDouble(String key) {
+    public double getDouble(String key) throws ConfigValueMissingException {
         return Double.parseDouble(getString(key));
     }
 

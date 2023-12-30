@@ -22,7 +22,7 @@ public class ConfigurationTest extends LinearOpMode {
 
         Mollusc.init(this);
 
-        if (!startTest("Fail asset location.")) {
+        if (!startTest("Fail asset load.")) {
             return;
         }
         try {
@@ -47,15 +47,20 @@ public class ConfigurationTest extends LinearOpMode {
         if (!startTest("Configuration values.")) {
             return;
         }
-        gentleAssert(config.getString("string value 1").equals("This is a test."));
-        gentleAssert(config.getString("string value 2").equals("This is a test: 2."));
-        gentleAssert(config.getInteger("integer value 1") == 0);
-        gentleAssert(config.getInteger("integer value 2") == 1);
-        gentleAssert(config.getDouble("double value 1") == 3.14159);
-        gentleAssert(config.getDouble("double value 2") == 2.718);
-        gentleAssert(config.getBoolean("boolean value 1") == true);
-        gentleAssert(config.getBoolean("boolean value 2") == false);
-        gentleAssert(config.containsKey("placeholder") && config.noValue("placeholder"));
+        try {
+            gentleAssert(config.getString("string value 1").equals("This is a test."));
+            gentleAssert(config.getString("string value 2").equals("This is a test: 2."));
+            gentleAssert(config.getInteger("integer value 1") == 0);
+            gentleAssert(config.getInteger("integer value 2") == 1);
+            gentleAssert(config.getDouble("double value 1") == 3.14159);
+            gentleAssert(config.getDouble("double value 2") == 2.718);
+            gentleAssert(config.getBoolean("boolean value 1") == true);
+            gentleAssert(config.getBoolean("boolean value 2") == false);
+            gentleAssert(config.containsKey("placeholder") && config.noValue("placeholder"));    
+        } catch (Exception e) {
+            telemetry.log().add(e.getMessage());
+            gentleAssert(false);
+        }
 
         if (!startTest("Configuration inputs.")) {
             return;
