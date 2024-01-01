@@ -10,26 +10,24 @@ public class Encoder {
 
     private double multiplier;
     private int ticksPerRevolution;
+    private double distancePerTick;
 
-    public Encoder(String name, double multiplier, int ticksPerRevolution) {
-        this.encoder = Mollusc.opMode.hardwareMap.get(DcMotorEx.class, name);
-        this.multiplier = multiplier;
-        this.ticksPerRevolution = ticksPerRevolution;
-
-        reset();
+    public Encoder(String name, double multiplier, int ticksPerRevolution, double wheelDiameter) {
+        this(Mollusc.opMode.hardwareMap.get(DcMotorEx.class, name), multiplier, ticksPerRevolution, wheelDiameter);
     }
 
-    public Encoder(DcMotorEx motor, double multiplier, int ticksPerRevolution) {
+    public Encoder(DcMotorEx motor, double multiplier, int ticksPerRevolution, double wheelDiameter) {
         this.encoder = motor;
         this.multiplier = multiplier;
         this.ticksPerRevolution = ticksPerRevolution;
+        this.distancePerTick = Math.PI * wheelDiameter / ticksPerRevolution;
 
         reset();
-        encoder.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public void reset() {
         encoder.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        encoder.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public int getTicks() {
@@ -37,6 +35,9 @@ public class Encoder {
     }
     public double getRevolutions() {
         return (double)getTicks() / ticksPerRevolution;
+    }
+    public double getDisplacement() {
+        return getTicks() * distancePerTick;
     }
 }
 

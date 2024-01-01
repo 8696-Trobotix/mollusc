@@ -1,15 +1,13 @@
-package org.firstinspires.ftc.teamcode.mollusc.auto;
+package org.firstinspires.ftc.teamcode.mollusc.auto.odometry;
 
-import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
+public class Pose {
 
-public class MecanumAuto {
+    public double x, y, z;
 
-    public DrivetrainBaseFourWheel base;
-
-    public MecanumAuto(
-        DrivetrainBaseFourWheel base
-    ) {
-        this.base = base;
+    public Pose(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.x = z;
     }
 }
 
