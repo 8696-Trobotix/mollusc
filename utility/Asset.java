@@ -41,6 +41,10 @@ public class Asset {
     // Non-blank tokens per line delineated by spaces.
     public String[][] getTokens() {
         String[] lines = getLines();
+        return tokenize(lines);
+    }
+
+    public static String[][] tokenize(String[] lines) {
         String[][] tokens = new String[lines.length][];
 
         for (int i = 0; i < lines.length; ++i) {
