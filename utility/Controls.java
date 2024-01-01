@@ -6,15 +6,15 @@ import java.util.HashMap;
 
 public class Controls {
 
-    public static HashMap<String, Boolean> singlePressMarkers = new HashMap<>();
-    public static HashMap<String, ElapsedTime> holdMarkers    = new HashMap<>();
+    public static HashMap<Object, Boolean> singlePressMarkers = new HashMap<>();
+    public static HashMap<Object, ElapsedTime> holdMarkers    = new HashMap<>();
 
     // Squares `value` while retaining sign. Useful for more natural joystick feel.
     public static double quadratic(double value) {
         return value * Math.abs(value);
     }
     
-    public static boolean singlePress(String marker, boolean value) {
+    public static boolean singlePress(Object marker, boolean value) {
         Boolean previous = singlePressMarkers.get(marker);
         if (previous == null) {
             previous = false;
@@ -29,7 +29,7 @@ public class Controls {
     }
 
     // Returns true on held value after a specified duration (seconds), false otherwise.
-    public static boolean spacedHold(String marker, boolean value, double duration) {
+    public static boolean spacedHold(Object marker, boolean value, double duration) {
         ElapsedTime time = holdMarkers.get(marker);
         if (time == null) {
             time = new ElapsedTime();
