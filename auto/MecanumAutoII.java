@@ -11,17 +11,16 @@ import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class MecanumAuto {
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-    public static double TIMEOUT = 5.0;
-    public static double STATIC_TIMOUT_MILLISECONDS = 500.0;
+public class MecanumAutoII implements Auto {
 
     public DrivetrainBaseFourWheel base;
     public DeadWheels deadWheels;
     public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
 
-    public MecanumAuto(
+    public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
         DeadWheels deadWheels, 
         Interpreter interpreter, 
@@ -78,7 +77,7 @@ public class MecanumAuto {
     public double[] drivePowers(Pose newPose) {
         double drive = drivePID.out(newPose.x - deadWheels.pose.x);
         double strafe = strafePID.out(newPose.y - deadWheels.pose.y);
-        double turn = turnPID.out(newPose.z - Math.toDegrees(deadWheels.pose.z));
+        double turn = turnPID.out(AngleUnit.normalizeRadians(-1 * (Math.toRadians(newPose.z) - deadWheels.pose.z)));
 
         double heading = deadWheels.pose.z;
         // Calculations based on GM0.
@@ -96,13 +95,25 @@ public class MecanumAuto {
         return new double[] {fl, fr, rl, rr};
     }
 
+    public void waitDelay(double seconds) throws ParityException {
+        LinearOpMode opMode = Configuration.useLinearOpMode();
+        ElapsedTime temp = new ElapsedTime();
+        while (temp.seconds() < seconds) {
+            opMode.idle();
+        }
+    }
+
     public void register() throws ParityException {
+        Configuration.useLinearOpMode();
         interpreter.register("drive", (Object[] pose) -> {
             driveTo(new Pose((Integer)pose[0], (Integer)pose[1], (Integer)pose[2]));
         }, Integer.class, Integer.class, Integer.class);
         interpreter.register("drive", (Object[] pose) -> {
             driveTo(new Pose((Double)pose[0], (Double)pose[1], (Double)pose[2]));
         }, Double.class, Double.class, Double.class);
+        interpreter.register("wait", (Object[] pose) -> {
+            waitDelay((Double)pose[0]);
+        }, Double.class);
     }
 }
 
