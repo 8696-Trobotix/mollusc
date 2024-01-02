@@ -1,7 +1,13 @@
-package org.firstinspires.ftc.teamcode.mollusc.auto;
+package org.firstinspires.ftc.teamcode.mollusc.exception;
 
-public interface Action {
-    void execute(Object [] arguments) throws Exception;
+public class ScriptParseException extends Exception {
+
+    public ScriptParseException(String message) {
+        super(message);
+    }
+    public ScriptParseException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 
 /*

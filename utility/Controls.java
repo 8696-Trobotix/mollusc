@@ -1,20 +1,20 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import java.util.HashMap;
 
 public class Controls {
 
-    public static HashMap<String, Boolean> singlePressMarkers = new HashMap<>();
-    public static HashMap<String, ElapsedTime> holdMarkers    = new HashMap<>();
+    public static HashMap<Object, Boolean> singlePressMarkers = new HashMap<>();
+    public static HashMap<Object, Double> holdMarkers = new HashMap<>();
 
     // Squares `value` while retaining sign. Useful for more natural joystick feel.
     public static double quadratic(double value) {
         return value * Math.abs(value);
     }
     
-    public static boolean singlePress(String marker, boolean value) {
+    public static boolean singlePress(Object marker, boolean value) {
         Boolean previous = singlePressMarkers.get(marker);
         if (previous == null) {
             previous = false;
@@ -29,16 +29,17 @@ public class Controls {
     }
 
     // Returns true on held value after a specified duration (seconds), false otherwise.
-    public static boolean spacedHold(String marker, boolean value, double duration) {
-        ElapsedTime time = holdMarkers.get(marker);
+    public static boolean spacedHold(Object marker, boolean value, double duration) {
+        Double time = holdMarkers.get(marker);
+        double runtime = Mollusc.opMode.getRuntime();
         if (time == null) {
-            time = new ElapsedTime();
+            time = runtime + duration;
             holdMarkers.put(marker, time);
         }
-        if (time.seconds() < duration) {
+        if (time > runtime) {
             return false;
         }
-        time.reset();
+        holdMarkers.put(marker, runtime + duration);
         return true;
     }
 }
