@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.mollusc.auto.odometry;
 
 import org.firstinspires.ftc.teamcode.mollusc.wrapper.Encoder;
 
+package org.firstinspires.ftc.robotcore.external.navigation;
+
 public class DeadWheels {
 
-    public Encoder left, right, center;
     public Pose pose;
+    public Encoder left, right, center;
 
     private double leftPrev, rightPrev, centerPrev;
+    private double headingPrev;
 
     // Distance between left and right encoders.
     public double trackWidth;
@@ -30,13 +33,16 @@ public class DeadWheels {
         this.trackWidth = trackWidth;
         this.centerOffset = centerOffset;
 
-        leftPrev = left.getDisplacement();
-        rightPrev = right.getDisplacement();
-        centerPrev = center.getDisplacement();
+        this.leftPrev = left.getDisplacement();
+        this.rightPrev = right.getDisplacement();
+        this.centerPrev = center.getDisplacement();
+        this.headingPrev = pose.z;
     }
 
     // Call continuously in control loop to get updated positions in `pose`.
     public void update() {
+        // Modified from https://github.com/FTCLib/FTCLib/blob/master/core/src/main/java/com/arcrobotics/ftclib/kinematics/HolonomicOdometry.java.
+
         double leftDis = left.getDisplacement();
         double rightDis = right.getDisplacement();
         double centerDis = center.getDisplacement();
@@ -45,46 +51,55 @@ public class DeadWheels {
         double deltaRight = rightDis - rightPrev;
         double deltaCenter = centerDis - centerPrev;
 
+        // Calculate change in heading using the difference between the displacements of the two parallel wheels.
+        // This calculation cannot be done using the center wheel because linear displacement is not rotational displacement.
+        double deltaHeading = AngleUtils.normalizeRadians((deltaLeft - deltaRight) / trackWidth);
+        double heading = AngleUtils.normalizeRadians(headingPrev + deltaHeading);
+
+        double deltaX = (deltaLeft + deltaRight) / 2;
+        double deltaY = deltaCenter - (centerOffset * deltaHeading);
+
+        double sinDeltaHeading = Math.sin(deltaHeading);
+        double cosDeltaHeading = Math.cos(deltaHeading);
+
+        // For small values of deltaHeading, limitations in floating-point calculations can lead to inaccuracies.
+        // This section uses a Taylor series approximation when those small values are computed.
+        double s;
+        double c;
+        if (Math.abs(deltaHeading) < 1E-9) {
+            s = 1.0 - 1.0 / 6.0 * deltaHeading * deltaHeading;
+            c = 0.5 * deltaHeading;
+        } else {
+            s = sinDeltaHeading / deltaHeading;
+            c = (1 - cosDeltaHeading) / deltaHeading;
+        }
+
+        double transformX = deltaX * s - deltaY * c;
+        double transformY = deltaX * c + deltaY * s;
+
         leftPrev = leftDis;
         rightPrev = rightDis;
         centerPrev = centerDis;
+        headingPrev = heading;
 
-        
-
-        // double deltaHeading = (deltaLeft - deltaRight) / trackWidth;
-        // double newHeading = pose.z + deltaHeading;// / 2?
-
-        // double deltaX = (deltaLeft + deltaRight) / 2;
-        // double deltaY = deltaCenter - (centerOffset * deltaHeading);
-
-        // double sinHeading = Math.sin(deltaHeading); // newHeading?
-        // double cosHeading = Math.cos(deltaHeading); // newHeading?
-        
-        // // ===
-        // // Taken from https://github.com/FTCLib/FTCLib/blob/master/core/src/main/java/com/arcrobotics/ftclib/geometry/Pose2d.java#L155.
-        // // I don't know what this is doing.
-        // double s;
-        // double c;
-        // if (Math.abs(deltaHeading) < 1E-9) {
-        //     s = 1.0 - 1.0 / 6.0 * deltaHeading * deltaHeading;
-        //     c = 0.5 * deltaHeading;
-        // } else {
-        //     s = sinHeading / deltaHeading;
-        //     c = (1 - cosHeading) / deltaHeading;
-        // }
-        // // ===
-        
-        // pose.x = deltaX * s - deltaY * c;
-        // pose.y = deltaX * c + deltaY * s;
-        // pose.z = newHeading;
+        pose.x += transformX * Math.cos(heading) - transformY * Math.sin(heading)
+        pose.y += transformX * Math.sin(heading) + transformY * Math.cos(heading)
+        pose.z = heading;
     }
 
     public void zero() {
-        pose = new Pose(0, 0, 0);
+        setPose(0, 0, 0);
         left.reset();
         right.reset();
         center.reset();
         leftPrev = rightPrev = centerPrev = 0;
+    }
+
+    public void setPose(double x, double y, double z) {
+        pose.x = x;
+        pose.y = y;
+        pose.z = z;
+        headingPrev = z;
     }
 }
 
