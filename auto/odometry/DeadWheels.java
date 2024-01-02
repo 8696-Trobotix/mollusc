@@ -85,6 +85,32 @@ public class DeadWheels {
         pose.x += transformX * Math.cos(heading) - transformY * Math.sin(heading)
         pose.y += transformX * Math.sin(heading) + transformY * Math.cos(heading)
         pose.z = heading;
+
+        /*
+        // Use these calculations if the first method above doesn't work.
+
+        // Modified from https://github.com/Beta8397/virtual_robot/blob/master/TeamCode/src/org/firstinspires/ftc/teamcode/EncBot.java.
+
+        double leftDis = left.getDisplacement();
+        double rightDis = right.getDisplacement();
+        double centerDis = center.getDisplacement();
+
+        double deltaLeft = leftDis - leftPrev;
+        double deltaRight = rightDis - rightPrev;
+        double deltaCenter = centerDis - centerPrev;
+
+        double deltaX = (deltaLeft + deltaRight) / 2;
+
+        double deltaHeading = (deltaLeft - deltaRight) / trackWidth;
+        double avgHeading = pose.z + deltaHeading / 2;
+
+        double sinAvg = Math.sin(avgHeading);
+        double cosAvg = Math.cos(avgHeading);
+
+        pose.x += deltaX * sinAvg - centerDis * cosAvg;
+        pose.y += deltaX * cosAvg + centerDis * sinAvg;
+        pose.z = AngleUtils.normalizeRadians(pose.z + deltaHeading);
+        */
     }
 
     public void zero() {
