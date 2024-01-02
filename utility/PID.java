@@ -1,5 +1,11 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
+
+import java.util.List;
+
+import com.qualcomm.hardware.lynx.LynxModule;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -30,6 +36,13 @@ public class PID {
 
     public void restart() {
         t = runtime.seconds();
+    }
+
+    public static void bulkMode() {
+        List<LynxModule> allHubs = Mollusc.opMode.hardwareMap.getAll(LynxModule.class);
+        for (LynxModule module : allHubs) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
     }
 }
 

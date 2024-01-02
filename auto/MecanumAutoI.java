@@ -84,11 +84,9 @@ public class MecanumAutoI implements Auto {
     }
 
     public double[] drivePowers(Pose newPose) {
-        double drive = drivePID.out(newPose.x - (
-            base.frontLeft.getCurrentPosition() + base.frontRight.getCurrentPosition()
-            + base.rearLeft.getCurrentPosition() + base.rearRight.getCurrentPosition()) / 4);
-        double strafe = strafePID.out(newPose.y - (
-            base.frontLeft.getCurrentPosition() + base.rearRight.getCurrentPosition()) / 2);
+        int[] positions = base.getEncoderCounts();
+        double drive = drivePID.out(newPose.x - (positions[0] + positions[1] + positions[2] + positions[3]) / 4);
+        double strafe = strafePID.out(newPose.y - (positions[0] + positions[1]) / 2);
         heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double turn = turnPID.out(AngleUnit.normalizeRadians(-1 * (Math.toRadians(newPose.z) - heading)));
 
