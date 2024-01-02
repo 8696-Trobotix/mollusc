@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.mollusc.auto.odometry;
 
 import org.firstinspires.ftc.teamcode.mollusc.wrapper.Encoder;
 
-package org.firstinspires.ftc.robotcore.external.navigation;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class DeadWheels {
 
@@ -43,6 +43,7 @@ public class DeadWheels {
     public void update() {
         // Note: variable name meanings do not match up between implementations below.
 
+        // /*
         // Modified from https://github.com/FTCLib/FTCLib/blob/master/core/src/main/java/com/arcrobotics/ftclib/kinematics/HolonomicOdometry.java.
 
         double leftDis = left.getDisplacement();
@@ -55,8 +56,8 @@ public class DeadWheels {
 
         // Calculate change in heading using the difference between the displacements of the two parallel wheels.
         // This calculation cannot be done using the center wheel because linear displacement is not rotational displacement.
-        double deltaHeading = AngleUtils.normalizeRadians((deltaLeft - deltaRight) / trackWidth);
-        double heading = AngleUtils.normalizeRadians(headingPrev + deltaHeading);
+        double deltaHeading = AngleUnit.normalizeRadians((deltaLeft - deltaRight) / trackWidth);
+        double heading = AngleUnit.normalizeRadians(headingPrev + deltaHeading);
 
         double deltaX = (deltaLeft + deltaRight) / 2;
         double deltaY = deltaCenter - (centerOffset * deltaHeading);
@@ -86,9 +87,10 @@ public class DeadWheels {
         centerPrev = centerDis;
         headingPrev = heading;
 
-        pose.x += transformX * Math.cos(heading) - transformY * Math.sin(heading)
-        pose.y += transformX * Math.sin(heading) + transformY * Math.cos(heading)
+        pose.x += transformX * Math.cos(heading) - transformY * Math.sin(heading);
+        pose.y += transformX * Math.sin(heading) + transformY * Math.cos(heading);
         pose.z = heading;
+        // */
 
         /*
         // Use these calculations if the first method above doesn't work.
@@ -118,7 +120,7 @@ public class DeadWheels {
 
         pose.x += deltaX * sinAvg - centerDis * cosAvg;
         pose.y += deltaX * cosAvg + centerDis * sinAvg;
-        pose.z = AngleUtils.normalizeRadians(pose.z + deltaHeading);
+        pose.z = AngleUnit.normalizeRadians(pose.z + deltaHeading);
         */
 
         /*
