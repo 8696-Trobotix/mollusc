@@ -65,7 +65,7 @@ public class Interpreter {
         }
     }
 
-    public void run() throws ScriptParseException {
+    public void run() throws Exception {
         parse(script);
         int instructionCount = instructions.size();
         for (; running 

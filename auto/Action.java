@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
+import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
+
 public interface Action {
-    void execute(Object [] arguments);
+    void execute(Object [] arguments) throws ParityException;
 }
 
 /*

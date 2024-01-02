@@ -14,9 +14,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class MecanumAuto {
 
     public static double TIMEOUT = 5.0;
+    public static double STATIC_TIMOUT_MILLISECONDS = 500.0;
 
     public DrivetrainBaseFourWheel base;
     public DeadWheels deadWheels;
+    public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
 
     public MecanumAuto(
@@ -33,8 +35,6 @@ public class MecanumAuto {
         this.drivePID = drivePID;
         this.strafePID = strafePID;
         this.turnPID = turnPID;
-
-        register();
     }
 
     // Field-centric style automated drive with three dead wheel localizers.
@@ -42,9 +42,11 @@ public class MecanumAuto {
         LinearOpMode opMode = Configuration.useLinearOpMode();
 
         drivePID.restart();
-        headingPID.restart();
+        strafePID.restart();
+        turnPID.restart();
 
         ElapsedTime runtime = new ElapsedTime();
+        double powerNetPrev = 1.0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
@@ -53,6 +55,18 @@ public class MecanumAuto {
             base.frontRight.setPower(powers[1]);
             base.rearLeft.setPower(powers[2]);
             base.rearRight.setPower(powers[3]);
+
+            double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
+            boolean t = (int)runtime.milliseconds() % STATIC_TIMOUT_MILLISECONDS == 0;
+            if (
+                Math.abs(powerNet) < 1E-6 
+                && Math.abs(powerNetPrev) < 1E-6
+                && t
+            ) {
+                break;
+            } else if (t) {
+                powerNetPrev = powerNet;
+            }
         }
 
         base.frontLeft.setPower(0);
@@ -82,7 +96,7 @@ public class MecanumAuto {
         return new double[] {fl, fr, rl, rr};
     }
 
-    private void register() {
+    public void register() throws ParityException {
         interpreter.register("drive", (Object[] pose) -> {
             driveTo(new Pose((Integer)pose[0], (Integer)pose[1], (Integer)pose[2]));
         }, Integer.class, Integer.class, Integer.class);

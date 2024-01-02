@@ -10,6 +10,12 @@ public class Pose {
         this.x = z;
     }
 
+    public Pose(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.x = z;
+    }
+
     @Override
     public String toString() {
         return String.format("Pose: x = %.2f, y = %.2f, z = %.2f", x, y, z);
