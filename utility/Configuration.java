@@ -63,7 +63,7 @@ public class Configuration {
         return Double.parseDouble(getString(key));
     }
 
-    private static LinearOpMode useLinearOpMode() throws ParityException {
+    public static LinearOpMode useLinearOpMode() throws ParityException {
         if (!(Mollusc.opMode instanceof LinearOpMode)) {
             throw new ParityException("Telemetry-based configuration is not available with iterative OpModes.");
         }

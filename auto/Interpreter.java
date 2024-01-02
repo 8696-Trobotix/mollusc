@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 import org.firstinspires.ftc.teamcode.mollusc.exception.ScriptParseException;
+import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
+import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.utility.Asset;
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
@@ -20,10 +22,12 @@ public class Interpreter {
     public boolean running = true;
     public boolean log = true;
 
-    public Interpreter(Asset asset) {
+    public Interpreter(Asset asset) throws ParityException {
+        Configuration.useLinearOpMode();
         script = asset.getTokens();
     }
-    public Interpreter(String[] rawLines) {
+    public Interpreter(String[] rawLines) throws ParityException {
+        Configuration.useLinearOpMode();
         script = Asset.tokenize(rawLines);
     }
 
