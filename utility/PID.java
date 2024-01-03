@@ -42,6 +42,7 @@ public class PID {
         List<LynxModule> allHubs = Mollusc.opMode.hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+            module.clearBulkCache();
         }
     }
 }

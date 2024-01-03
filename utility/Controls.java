@@ -21,7 +21,7 @@ public class Controls {
             singlePressMarkers.put(marker, previous);
         }
         boolean b = previous;
-        previous = value;
+        singlePressMarkers.put(marker, value);
         if (b || !value) {
             return false;
         }
@@ -36,7 +36,7 @@ public class Controls {
             time = runtime + duration;
             holdMarkers.put(marker, time);
         }
-        if (time > runtime) {
+        if (time > runtime || !value) {
             return false;
         }
         holdMarkers.put(marker, runtime + duration);
