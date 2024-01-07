@@ -53,6 +53,7 @@ public class MecanumAutoII implements Auto {
         turnPID.restart();
 
         ElapsedTime runtime = new ElapsedTime();
+        int previousTime = -1;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
@@ -62,15 +63,18 @@ public class MecanumAutoII implements Auto {
             base.rearLeft.setPower(powers[2]);
             base.rearRight.setPower(powers[3]);
 
-            boolean t = (int)runtime.milliseconds() % STATIC_TIMEOUT_MILLISECONDS == 0;
+            int currentTime = (int)runtime.milliseconds();
+            boolean t = currentTime % STATIC_TIMEOUT_MILLISECONDS == 0;
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
             if (
                 t
+                && currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS
                 && positionToleranceSq >= a * a + b * b
                 && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))
             ) {
                 break;
             }
+            previousTime = currentTime;
         }
 
         base.frontLeft.setPower(0);

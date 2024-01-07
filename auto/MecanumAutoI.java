@@ -61,6 +61,7 @@ public class MecanumAutoI implements Auto {
     private void setPower(LinearOpMode opMode, Pose newPose, int fli, int fri, int rli, int rri) {
         ElapsedTime runtime = new ElapsedTime();
         double powerNetPrev = 1.0;
+        int previousTime = -1;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
@@ -71,16 +72,19 @@ public class MecanumAutoI implements Auto {
             base.rearRight.setPower(powers[rri]);
 
             double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
-            boolean t = (int)runtime.milliseconds() % STATIC_TIMEOUT_MILLISECONDS == 0;
+            int currentTime = (int)runtime.milliseconds();
+            boolean t = currentTime % STATIC_TIMEOUT_MILLISECONDS == 0;
             if (
                 t
-                && Math.abs(powerNet) < powerTolerance 
+                && currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS
+                && Math.abs(powerNet) < powerTolerance
                 && Math.abs(powerNetPrev) < powerTolerance 
             ) {
                 break;
             } else if (t) {
                 powerNetPrev = powerNet;
             }
+            previousTime = currentTime;
         }
 
         base.frontLeft.setPower(0);

@@ -1,3 +1,17 @@
+/*
+From GM0.
+
+The most common method for tuning a PID controller is as follows:
+
+    Set the I and D gains to zero
+
+    Increase the P gain until there are oscillations around the target
+
+    Increase the D gain until no overshoot occurs
+
+    If there is steady state error, increase the I gain until it is corrected
+*/
+
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
