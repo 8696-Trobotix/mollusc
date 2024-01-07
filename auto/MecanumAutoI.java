@@ -16,11 +16,15 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumAutoI implements Auto {
 
+    public double TIMEOUT = 5.0;
+    public int STATIC_TIMEOUT_MILLISECONDS = 500;
+
     public DrivetrainBaseFourWheel base;
     public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
     public IMU imu;
     public double heading = 0.0;
+    public double powerTolerance;
 
     public MecanumAutoI(
         DrivetrainBaseFourWheel base, 
@@ -28,7 +32,8 @@ public class MecanumAutoI implements Auto {
         PID drivePID, 
         PID strafePID, 
         PID turnPID, 
-        IMU imu
+        IMU imu, 
+        double powerTolerance
     ) {
         this.base = base;
         this.interpreter = interpreter;
@@ -36,6 +41,7 @@ public class MecanumAutoI implements Auto {
         this.strafePID = strafePID;
         this.turnPID = turnPID;
         this.imu = imu;
+        this.powerTolerance = powerTolerance;
     }
 
     // Field-centric style automated drive with three dead wheel localizers.
@@ -65,11 +71,11 @@ public class MecanumAutoI implements Auto {
             base.rearRight.setPower(powers[rri]);
 
             double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
-            boolean t = (int)runtime.milliseconds() % STATIC_TIMOUT_MILLISECONDS == 0;
+            boolean t = (int)runtime.milliseconds() % STATIC_TIMEOUT_MILLISECONDS == 0;
             if (
-                Math.abs(powerNet) < 1E-6 
-                && Math.abs(powerNetPrev) < 1E-6
-                && t
+                t
+                && Math.abs(powerNet) < powerTolerance 
+                && Math.abs(powerNetPrev) < powerTolerance 
             ) {
                 break;
             } else if (t) {
@@ -88,7 +94,7 @@ public class MecanumAutoI implements Auto {
         double drive = drivePID.out(newPose.x - (positions[0] + positions[1] + positions[2] + positions[3]) / 4);
         double strafe = strafePID.out(newPose.y - (positions[0] + positions[1]) / 2);
         heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        double turn = turnPID.out(AngleUnit.normalizeRadians(-1 * (Math.toRadians(newPose.z) - heading)));
+        double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
 
         double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
         double drive_fl = (drive + turn) / drive_max;
@@ -130,9 +136,15 @@ public class MecanumAutoI implements Auto {
         interpreter.register("drive", (Object[] pose) -> {
             driveTo(new Pose((Double)pose[0], (Double)pose[1], (Double)pose[2]));
         }, Double.class, Double.class, Double.class);
-        interpreter.register("wait", (Object[] pose) -> {
+        interpreter.register("wait_seconds", (Object[] pose) -> {
             waitDelay((Double)pose[0]);
         }, Double.class);
+        interpreter.register("set_timeout_seconds", (Object[] t) -> {
+            TIMEOUT = (Double)t[0];
+        }, Double.class);
+        interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
+            STATIC_TIMEOUT_MILLISECONDS = (Integer)t[0];
+        }, Integer.class);
     }
 }
 

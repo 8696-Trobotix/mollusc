@@ -4,13 +4,10 @@ import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
 
 public interface Auto {
-
-    public static double TIMEOUT = 5.0;
-    public static double STATIC_TIMOUT_MILLISECONDS = 500.0;
-
-    public void driveTo(Pose newPose) throws ParityException;
-    public double[] drivePowers(Pose newPose);
-    public void register() throws ParityException;
+    
+    void driveTo(Pose newPose) throws ParityException;
+    double[] drivePowers(Pose newPose);
+    void register() throws ParityException;
 }
 
 /*

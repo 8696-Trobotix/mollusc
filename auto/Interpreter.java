@@ -20,7 +20,6 @@ public class Interpreter {
 
     private int instructionPointer = 0;
     public boolean running = true;
-    public boolean log = true;
 
     public Interpreter(Asset asset) throws ParityException {
         Configuration.useLinearOpMode();
@@ -65,7 +64,7 @@ public class Interpreter {
         }
     }
 
-    public void run() throws Exception {
+    public void run(boolean log) throws Exception {
         parse(script);
         int instructionCount = instructions.size();
         for (; running 
