@@ -20,8 +20,8 @@ public class ObjectDetector {
     private static Mat hsv = new Mat();
     private static Mat mask1 = new Mat(), mask2 = new Mat();
     private static Mat hierarchy = new Mat();
-    private static final Scalar GREEN_COLOR = new Scalar(0, 255, 0);
-    private static final Scalar RED_COLOR = new Scalar(0, 0, 255);
+    public static final Scalar GREEN_COLOR = new Scalar(0, 255, 0);
+    public static final Scalar RED_COLOR = new Scalar(255, 0, 0);
 
     public static List<VisionObject> coloredObjectCoordinates(Mat src, double minimumTotality, List<ColorRange> ranges_hsv) {
         return coloredObjectCoordinates(src, minimumTotality, ranges_hsv.toArray(new ColorRange[0]));
@@ -31,7 +31,7 @@ public class ObjectDetector {
     }
     public static List<VisionObject> coloredObjectCoordinates(Mat src, double minimumTotality, Size gaussianKernelSize, ColorRange ...ranges_hsv) {
         gaussian(src, gaussianKernelSize);
-        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_BGR2HSV);
+        Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGB2HSV);
         mask(hsv, ranges_hsv);
 
         List<MatOfPoint> contours = contours(mask1);

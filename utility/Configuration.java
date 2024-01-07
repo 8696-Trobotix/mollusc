@@ -139,10 +139,10 @@ public class Configuration {
         return labels == null ? ret : ret % labels.length;
     }
 
-    public static double inputDouble(String caption, int defaultValue, double holdWait, double delta) throws ParityException {
+    public static double inputDouble(String caption, double defaultValue, double holdWait, double delta) throws ParityException {
         return inputDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
     }
-    public static double inputDouble(String caption, int defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
+    public static double inputDouble(String caption, double defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
         LinearOpMode opMode = useLinearOpMode();
 
         double ret = defaultValue;
