@@ -1,17 +1,23 @@
-package org.firstinspires.ftc.teamcode.mollusc.auto;
+package org.firstinspires.ftc.teamcode.mollusc.vision;
 
-import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
-import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
+import org.opencv.core.Scalar;
 
-public interface Auto {
-    
-    void driveTo(Pose newPose) throws ParityException;
-    double[] drivePowers(Pose newPose);
-    void register() throws ParityException;
+public class ColorRange {
+    public Scalar lowerBound, upperBound;
+
+    public ColorRange(Scalar lowerBound, Scalar upperBound) {
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+    }
+
+    @Override
+    public String toString() {
+        return lowerBound.toString() + " " + upperBound.toString();
+    }
 }
 
 /*
-Copyright 2023 Trobotix 8696
+Copyright 2024 Trobotix 8696
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

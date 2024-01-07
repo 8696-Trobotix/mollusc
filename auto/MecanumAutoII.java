@@ -15,10 +15,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumAutoII implements Auto {
 
+    public static double TIMEOUT = 5.0;
+    public static int STATIC_TIMEOUT_MILLISECONDS = 500;
+
     public DrivetrainBaseFourWheel base;
     public DeadWheels deadWheels;
     public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
+    public double positionToleranceSq, headingTolerance;
 
     public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
@@ -26,7 +30,9 @@ public class MecanumAutoII implements Auto {
         Interpreter interpreter, 
         PID drivePID, 
         PID strafePID, 
-        PID turnPID
+        PID turnPID, 
+        double positionTolerance, 
+        double headingTolerance
     ) {
         this.base = base;
         this.deadWheels = deadWheels;
@@ -34,6 +40,8 @@ public class MecanumAutoII implements Auto {
         this.drivePID = drivePID;
         this.strafePID = strafePID;
         this.turnPID = turnPID;
+        this.positionToleranceSq = positionTolerance * positionTolerance;
+        this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
     }
 
     // Field-centric style automated drive with three dead wheel localizers.
@@ -45,7 +53,6 @@ public class MecanumAutoII implements Auto {
         turnPID.restart();
 
         ElapsedTime runtime = new ElapsedTime();
-        double powerNetPrev = 1.0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
@@ -55,16 +62,14 @@ public class MecanumAutoII implements Auto {
             base.rearLeft.setPower(powers[2]);
             base.rearRight.setPower(powers[3]);
 
-            double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
-            boolean t = (int)runtime.milliseconds() % STATIC_TIMOUT_MILLISECONDS == 0;
+            boolean t = (int)runtime.milliseconds() % STATIC_TIMEOUT_MILLISECONDS == 0;
+            double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
             if (
-                Math.abs(powerNet) < 1E-6 
-                && Math.abs(powerNetPrev) < 1E-6
-                && t
+                t
+                && positionToleranceSq >= a * a + b * b
+                && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))
             ) {
                 break;
-            } else if (t) {
-                powerNetPrev = powerNet;
             }
         }
 
@@ -77,7 +82,11 @@ public class MecanumAutoII implements Auto {
     public double[] drivePowers(Pose newPose) {
         double drive = drivePID.out(newPose.x - deadWheels.pose.x);
         double strafe = strafePID.out(newPose.y - deadWheels.pose.y);
-        double turn = turnPID.out(AngleUnit.normalizeRadians(-1 * (Math.toRadians(newPose.z) - deadWheels.pose.z)));
+        double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
+
+        // double dsum = Math.abs(drive) + Math.abs(strafe);
+        // drive /= dsum;
+        // strafe /= dsum;
 
         double heading = deadWheels.pose.z;
         // Calculations based on GM0.
@@ -111,9 +120,15 @@ public class MecanumAutoII implements Auto {
         interpreter.register("drive", (Object[] pose) -> {
             driveTo(new Pose((Double)pose[0], (Double)pose[1], (Double)pose[2]));
         }, Double.class, Double.class, Double.class);
-        interpreter.register("wait", (Object[] pose) -> {
+        interpreter.register("wait_seconds", (Object[] pose) -> {
             waitDelay((Double)pose[0]);
         }, Double.class);
+        interpreter.register("set_timeout_seconds", (Object[] t) -> {
+            TIMEOUT = (Double)t[0];
+        }, Double.class);
+        interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
+            STATIC_TIMEOUT_MILLISECONDS = (Integer)t[0];
+        }, Integer.class);
     }
 }
 
