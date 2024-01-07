@@ -7,13 +7,13 @@ public class Pose {
     public Pose(double x, double y, double z) {
         this.x = x;
         this.y = y;
-        this.x = z;
+        this.z = z;
     }
 
     public Pose(int x, int y, int z) {
         this.x = x;
         this.y = y;
-        this.x = z;
+        this.z = z;
     }
 
     @Override

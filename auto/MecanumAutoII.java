@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+import java.util.Arrays;
+
 public class MecanumAutoII implements Auto {
 
     public static double TIMEOUT = 5.0;
@@ -55,8 +57,14 @@ public class MecanumAutoII implements Auto {
         ElapsedTime runtime = new ElapsedTime();
         int previousTime = -1;
 
+//        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);
+
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
+
+//            Mollusc.opMode.telemetry.addData("Position", deadWheels.pose);
+//            Mollusc.opMode.telemetry.addData("Powers", Arrays.toString(powers));
+//            Mollusc.opMode.telemetry.update();
 
             base.frontLeft.setPower(powers[0]);
             base.frontRight.setPower(powers[1]);
@@ -72,6 +80,9 @@ public class MecanumAutoII implements Auto {
                 && positionToleranceSq >= a * a + b * b
                 && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))
             ) {
+
+//                Mollusc.opMode.telemetry.log().add("Static stopped.");
+
                 break;
             }
             previousTime = currentTime;
@@ -87,10 +98,6 @@ public class MecanumAutoII implements Auto {
         double drive = drivePID.out(newPose.x - deadWheels.pose.x);
         double strafe = strafePID.out(newPose.y - deadWheels.pose.y);
         double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
-
-        // double dsum = Math.abs(drive) + Math.abs(strafe);
-        // drive /= dsum;
-        // strafe /= dsum;
 
         double heading = deadWheels.pose.z;
         // Calculations based on GM0.
