@@ -23,14 +23,33 @@ public class ObjectDetector {
     public static final Scalar GREEN_COLOR = new Scalar(0, 255, 0);
     public static final Scalar RED_COLOR = new Scalar(255, 0, 0);
 
-    public static List<VisionObject> coloredObjectCoordinates(Mat src, double minimumTotality, List<ColorRange> ranges_hsv) {
-        return coloredObjectCoordinates(src, minimumTotality, ranges_hsv.toArray(new ColorRange[0]));
+    public static List<VisionObject> coloredObjectCoordinates(
+        Mat src_dest, 
+        double minimumPixelTotality, 
+        double minimumBoundingTotality, 
+        boolean draw, 
+        List<ColorRange> ranges_hsv
+    ) {
+        return coloredObjectCoordinates(src_dest, minimumPixelTotality, minimumBoundingTotality, draw, ranges_hsv.toArray(new ColorRange[0]));
     }
-    public static List<VisionObject> coloredObjectCoordinates(Mat src, double minimumTotality, ColorRange ...ranges_hsv) {
-        return coloredObjectCoordinates(src, minimumTotality, new Size(5, 5), ranges_hsv);
+    public static List<VisionObject> coloredObjectCoordinates(
+        Mat src_dest, 
+        double minimumPixelTotality, 
+        double minimumBoundingTotality, 
+        boolean draw, 
+        ColorRange ...ranges_hsv
+    ) {
+        return coloredObjectCoordinates(src_dest, minimumPixelTotality, minimumBoundingTotality, new Size(5, 5), draw, ranges_hsv);
     }
-    public static List<VisionObject> coloredObjectCoordinates(Mat src, double minimumTotality, Size gaussianKernelSize, ColorRange ...ranges_hsv) {
-        gaussian(src, gaussianKernelSize);
+    public static List<VisionObject> coloredObjectCoordinates(
+        Mat src_dest, 
+        double minimumPixelTotality, 
+        double minimumBoundingTotality, 
+        Size gaussianKernelSize, 
+        boolean draw, 
+        ColorRange ...ranges_hsv
+    ) {
+        gaussian(src_dest, gaussianKernelSize);
         Imgproc.cvtColor(blurred, hsv, Imgproc.COLOR_RGB2HSV);
         mask(hsv, ranges_hsv);
 
@@ -41,19 +60,32 @@ public class ObjectDetector {
         for (MatOfPoint contour : contours) {
             Rect rect = Imgproc.boundingRect(contour);
 
-            double totality = rect.width * rect.height / total;
-            if (totality >= minimumTotality) {
+            double pixelTotality = Core.countNonZero(mask1.submat(rect)) / total;
+            double boundingTotality = rect.width * rect.height / total;
+            if (
+                pixelTotality >= minimumPixelTotality 
+                && boundingTotality >= minimumBoundingTotality
+            ) {
                 objs.add(
                     new VisionObject(
                         rect.x + rect.width / 2, 
                         rect.y + rect.height / 2, 
                         rect.width, 
                         rect.height, 
-                        totality
+                        pixelTotality, 
+                        boundingTotality
                     )
                 );
             }
         }
+
+        if (draw) {
+            highlightContours(src_dest, contours, RED_COLOR);
+            for (VisionObject obj : objs) {
+                ObjectDetector.highlightObject(src_dest, obj, GREEN_COLOR);
+            }
+        }
+
         return objs;
     }
 
