@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ObjectDetector {
 
-    // Static auxilary matrices since EOCV won't automatically release matrices per frame process.
+    // Static auxiliary matrices since EOCV won't automatically release matrices per frame process.
     // Note: HSV hue [0, 179] (not [0, 359]).
     private static Mat blurred = new Mat();
     private static Mat hsv = new Mat();
