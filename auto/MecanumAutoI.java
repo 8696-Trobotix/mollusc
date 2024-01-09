@@ -44,7 +44,8 @@ public class MecanumAutoI implements Auto {
         this.powerTolerance = powerTolerance;
     }
 
-    // Field-centric style automated drive with three dead wheel localizers.
+    // Field-centric style automated drive.
+    // Recommended to use MecanumAutoII instead, as the heading is also accounted for whilst driving.
     public void driveTo(Pose newPose) throws ParityException {
         LinearOpMode opMode = Configuration.useLinearOpMode();
 
