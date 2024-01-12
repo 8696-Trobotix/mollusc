@@ -45,7 +45,7 @@ public class PID {
         double derivative = (error - errorPrev) / dt;
         errorPrev = error;
         t = seconds;
-        return Range.clip(Kp * error + Ki * integral + Kd * derivative, -1.0, 1.0) * magnitude;
+        return Range.clip(Kp * error + Ki * integral + Kd * derivative, -magnitude, magnitude);
     }
 
     public void restart() {

@@ -56,6 +56,7 @@ public class MecanumAutoII implements Auto {
 
         ElapsedTime runtime = new ElapsedTime();
         int previousTime = -1;
+        boolean wasAtCorrectPosition = false;
 
 //        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);
 
@@ -72,19 +73,19 @@ public class MecanumAutoII implements Auto {
             base.rearRight.setPower(powers[3]);
 
             int currentTime = (int)runtime.milliseconds();
-            boolean t = currentTime % STATIC_TIMEOUT_MILLISECONDS == 0;
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
+            boolean atCorrectPosition = positionToleranceSq >= a * a + b * b && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
             if (
-                t
-                && currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS
-                && positionToleranceSq >= a * a + b * b
-                && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))
+                currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS // At least the static timeout duration has passed.
+                && atCorrectPosition // Currently at correct position.
+                && wasAtCorrectPosition // Was at correct position at a time equal to or greater than the static timeout duration ago.
             ) {
 
 //                Mollusc.opMode.telemetry.log().add("Static stopped.");
 
                 break;
             }
+            wasAtCorrectPosition = atCorrectPosition;
             previousTime = currentTime;
         }
 
@@ -126,11 +127,14 @@ public class MecanumAutoII implements Auto {
     public void register() throws ParityException {
         Configuration.useLinearOpMode();
         interpreter.register("drive", (Object[] pose) -> {
-            driveTo(new Pose((Integer)pose[0], (Integer)pose[1], (Integer)pose[2]));
-        }, Integer.class, Integer.class, Integer.class);
-        interpreter.register("drive", (Object[] pose) -> {
-            driveTo(new Pose((Double)pose[0], (Double)pose[1], (Double)pose[2]));
-        }, Double.class, Double.class, Double.class);
+            driveTo(
+                new Pose(
+                    Double.parseDouble((String)pose[0]), 
+                    Double.parseDouble((String)pose[1]), 
+                    Double.parseDouble((String)pose[2])
+                )
+            );
+        }, String.class, String.class, String.class);
         interpreter.register("wait_seconds", (Object[] pose) -> {
             waitDelay((Double)pose[0]);
         }, Double.class);
