@@ -13,6 +13,7 @@ import java.util.Arrays;
 public class Interpreter {
 
     private static final String IDENTIFIER_DELIMITER = "-", INTEGER_MANGLING = "i", DOUBLE_MANGLING = "f", STRING_MANGLING = "s";
+    public static Action noneAction = (Object[] args) -> {};
 
     private ArrayList<Instruction> instructions = new ArrayList<>();
     private HashMap<String, Action> actions = new HashMap<>();
