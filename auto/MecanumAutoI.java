@@ -61,8 +61,8 @@ public class MecanumAutoI implements Auto {
 
     private void setPower(LinearOpMode opMode, Pose newPose, int fli, int fri, int rli, int rri) {
         ElapsedTime runtime = new ElapsedTime();
-        double powerNetPrev = 1.0;
         int previousTime = -1;
+        double powerNetPrev = 1.0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
@@ -72,19 +72,16 @@ public class MecanumAutoI implements Auto {
             base.rearLeft.setPower(powers[rli]);
             base.rearRight.setPower(powers[rri]);
 
-            double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
             int currentTime = (int)runtime.milliseconds();
-            boolean t = currentTime % STATIC_TIMEOUT_MILLISECONDS == 0;
+            double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
             if (
-                t
-                && currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS
+                currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS // At least the static timeout duration has passed.
                 && Math.abs(powerNet) < powerTolerance
                 && Math.abs(powerNetPrev) < powerTolerance 
             ) {
                 break;
-            } else if (t) {
-                powerNetPrev = powerNet;
             }
+            powerNetPrev = powerNet;
             previousTime = currentTime;
         }
 
@@ -136,11 +133,14 @@ public class MecanumAutoI implements Auto {
     public void register() throws ParityException {
         Configuration.useLinearOpMode();
         interpreter.register("drive", (Object[] pose) -> {
-            driveTo(new Pose((Integer)pose[0], (Integer)pose[1], (Integer)pose[2]));
-        }, Integer.class, Integer.class, Integer.class);
-        interpreter.register("drive", (Object[] pose) -> {
-            driveTo(new Pose((Double)pose[0], (Double)pose[1], (Double)pose[2]));
-        }, Double.class, Double.class, Double.class);
+            driveTo(
+                new Pose(
+                    Double.parseDouble((String)pose[0]), 
+                    Double.parseDouble((String)pose[1]), 
+                    Double.parseDouble((String)pose[2])
+                )
+            );
+        }, String.class, String.class, String.class);
         interpreter.register("wait_seconds", (Object[] pose) -> {
             waitDelay((Double)pose[0]);
         }, Double.class);
