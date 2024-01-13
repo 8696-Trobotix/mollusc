@@ -49,7 +49,7 @@ public class Asset {
 
         for (int i = 0; i < lines.length; ++i) {
             LinkedList<String> list = new LinkedList<>();
-            String[] parsed = lines[i].split(" ");
+            String[] parsed = lines[i].split("[ \t]+");
 
             for (String token : parsed) {
                 token = token.trim();
