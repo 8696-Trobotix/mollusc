@@ -171,6 +171,30 @@ public class Configuration {
 
         return ret;
     }
+
+    // If `h` throws an exception, `requestOpModeStop()` is issued.
+    public static void handle(Handleable h) {
+        try {
+            h.run();
+        } catch (Exception e) {
+            try {
+                LinearOpMode opMode = useLinearOpMode();
+                opMode.telemetry.log().add(e.getMessage());
+                opMode.telemetry.log().add("Exception occurred. See above. Press (A) to terminate.");
+                while (!opMode.gamepad1.a && !opMode.isStopRequested()) {
+                    opMode.idle();
+                }
+                opMode.requestOpModeStop();    
+            } catch (ParityException p) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @FunctionalInterface
+    public interface Handleable {
+        void run() throws Exception;
+    }
 }
 
 /*

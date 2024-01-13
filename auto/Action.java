@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
+@FunctionalInterface
 public interface Action {
     void execute(Object [] arguments) throws Exception;
 }
