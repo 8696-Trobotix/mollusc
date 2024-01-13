@@ -43,7 +43,7 @@ public class DeadWheels {
     public void update() {
         // Note: variable name meanings do not match up between implementations below.
 
-        // /*
+        /*
         // Modified from https://github.com/FTCLib/FTCLib/blob/master/core/src/main/java/com/arcrobotics/ftclib/kinematics/HolonomicOdometry.java.
 
         double leftDis = left.getDisplacement();
@@ -90,7 +90,7 @@ public class DeadWheels {
         pose.x += transformX * Math.cos(heading) - transformY * Math.sin(heading);
         pose.y += transformX * Math.sin(heading) + transformY * Math.cos(heading);
         pose.z = heading;
-        // */
+        */
 
         /*
         // Use these calculations if the first method above doesn't work.
@@ -123,7 +123,7 @@ public class DeadWheels {
         pose.z = AngleUnit.normalizeRadians(pose.z + deltaHeading);
         */
 
-        /*
+        // /*
         // Use these calculations if the two methods above don't work.
         // Adapted from GM0.
         // This one uses standard Euler integration.
@@ -147,7 +147,7 @@ public class DeadWheels {
         pose.x += deltaX * Math.cos(pose.z) - deltaY * Math.sin(pose.z);
         pose.y += deltaX * Math.sin(pose.z) + deltaY * Math.cos(pose.z);
         pose.z += deltaHeading;
-        */
+        // */
     }
 
     public void zero() {
