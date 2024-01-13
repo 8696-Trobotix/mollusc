@@ -55,7 +55,7 @@ public class MecanumAutoII implements Auto {
         turnPID.restart();
 
         ElapsedTime runtime = new ElapsedTime();
-        int previousTime = -1;
+        int previousTime = -STATIC_TIMEOUT_MILLISECONDS;
         boolean wasAtCorrectPosition = false;
 
 //        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);

@@ -61,7 +61,7 @@ public class MecanumAutoI implements Auto {
 
     private void setPower(LinearOpMode opMode, Pose newPose, int fli, int fri, int rli, int rri) {
         ElapsedTime runtime = new ElapsedTime();
-        int previousTime = -1;
+        int previousTime = -STATIC_TIMEOUT_MILLISECONDS;
         double powerNetPrev = 1.0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
