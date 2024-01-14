@@ -25,7 +25,7 @@ public class MecanumAutoII implements Auto {
     public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
     public double maximumPower;
-    public double positionToleranceSq, headingTolerance;
+    public double positionTolerance, headingTolerance;
 
     public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
@@ -45,7 +45,7 @@ public class MecanumAutoII implements Auto {
         this.strafePID = strafePID;
         this.turnPID = turnPID;
         this.maximumPower = maximumPower;
-        this.positionToleranceSq = positionTolerance * positionTolerance;
+        this.positionTolerance = positionTolerance;
         this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
     }
 
@@ -77,11 +77,7 @@ public class MecanumAutoII implements Auto {
 
             int currentTime = (int)runtime.milliseconds();
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
-            boolean atCorrectPosition = positionToleranceSq >= a * a + b * b && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
-
-//            Mollusc.opMode.telemetry.log().add("At Correct Position: " + (positionToleranceSq >= a * a + b * b) + " " + (headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))));
-            Mollusc.opMode.telemetry.log().add("Off By: " + ((a * a + b * b) - positionToleranceSq) + " " + (AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z) - headingTolerance));
-
+            boolean atCorrectPosition = positionTolerance >= a && positionTolerance >= b && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
             if (
                 currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS // At least the static timeout duration has passed.
                 && atCorrectPosition // Currently at correct position.
