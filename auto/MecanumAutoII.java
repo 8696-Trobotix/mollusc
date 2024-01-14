@@ -79,7 +79,8 @@ public class MecanumAutoII implements Auto {
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
             boolean atCorrectPosition = positionToleranceSq >= a * a + b * b && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
 
-            Mollusc.opMode.telemetry.log().add("At Correct Position: " + (positionToleranceSq >= a * a + b * b) + " " + (headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))));
+//            Mollusc.opMode.telemetry.log().add("At Correct Position: " + (positionToleranceSq >= a * a + b * b) + " " + (headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z))));
+            Mollusc.opMode.telemetry.log().add("Off By: " + ((a * a + b * b) - positionToleranceSq) + " " + (AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z) - headingTolerance));
 
             if (
                 currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS // At least the static timeout duration has passed.
