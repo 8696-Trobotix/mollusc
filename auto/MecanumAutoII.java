@@ -24,6 +24,7 @@ public class MecanumAutoII implements Auto {
     public DeadWheels deadWheels;
     public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
+    public double maximumPower;
     public double positionToleranceSq, headingTolerance;
 
     public MecanumAutoII(
@@ -33,6 +34,7 @@ public class MecanumAutoII implements Auto {
         PID drivePID, 
         PID strafePID, 
         PID turnPID, 
+        double maximumPower, 
         double positionTolerance, 
         double headingTolerance
     ) {
@@ -42,6 +44,7 @@ public class MecanumAutoII implements Auto {
         this.drivePID = drivePID;
         this.strafePID = strafePID;
         this.turnPID = turnPID;
+        this.maximumPower = maximumPower;
         this.positionToleranceSq = positionTolerance * positionTolerance;
         this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
     }
@@ -106,10 +109,10 @@ public class MecanumAutoII implements Auto {
         double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
         // Normalize. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
-        double fl = (rotY + rotX + turn) / max;
-        double fr = (rotY - rotX - turn) / max;
-        double rl = (rotY - rotX + turn) / max;
-        double rr = (rotY + rotX - turn) / max;
+        double fl = (rotY + rotX + turn) / max * maximumPower;
+        double fr = (rotY - rotX - turn) / max * maximumPower;
+        double rl = (rotY - rotX + turn) / max * maximumPower;
+        double rr = (rotY + rotX - turn) / max * maximumPower;
 
         deadWheels.update();
 
