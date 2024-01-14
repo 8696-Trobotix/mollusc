@@ -23,6 +23,7 @@ public class MecanumAutoI implements Auto {
     public Interpreter interpreter;
     public PID drivePID, strafePID, turnPID;
     public IMU imu;
+    public double maximumPower;
     public double heading = 0.0;
     public double powerTolerance;
 
@@ -33,6 +34,7 @@ public class MecanumAutoI implements Auto {
         PID strafePID, 
         PID turnPID, 
         IMU imu, 
+        double maximumPower, 
         double powerTolerance
     ) {
         this.base = base;
@@ -41,6 +43,7 @@ public class MecanumAutoI implements Auto {
         this.strafePID = strafePID;
         this.turnPID = turnPID;
         this.imu = imu;
+        this.maximumPower = maximumPower;
         this.powerTolerance = powerTolerance;
     }
 
@@ -99,21 +102,21 @@ public class MecanumAutoI implements Auto {
         double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
 
         double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
-        double drive_fl = (drive + turn) / drive_max;
-        double drive_fr = (drive - turn) / drive_max;
-        double drive_rl = (drive + turn) / drive_max;
-        double drive_rr = (drive - turn) / drive_max;
+        double drive_fl = (drive + turn) / drive_max * maximumPower;
+        double drive_fr = (drive - turn) / drive_max * maximumPower;
+        double drive_rl = (drive + turn) / drive_max * maximumPower;
+        double drive_rr = (drive - turn) / drive_max * maximumPower;
 
         double strafe_max = Math.max(Math.abs(strafe) + Math.abs(turn), 1);
-        double strafe_fl = (strafe + turn) / strafe_max;
-        double strafe_fr = (-strafe - turn) / strafe_max;
-        double strafe_rl = (-strafe + turn) / strafe_max;
-        double strafe_rr = (strafe - turn) / strafe_max;
+        double strafe_fl = (strafe + turn) / strafe_max * maximumPower;
+        double strafe_fr = (-strafe - turn) / strafe_max * maximumPower;
+        double strafe_rl = (-strafe + turn) / strafe_max * maximumPower;
+        double strafe_rr = (strafe - turn) / strafe_max * maximumPower;
 
-        double turn_fl = turn;
-        double turn_fr = -turn;
-        double turn_rl = turn;
-        double turn_rr = -turn;
+        double turn_fl = turn * maximumPower;
+        double turn_fr = -turn * maximumPower;
+        double turn_rl = turn * maximumPower;
+        double turn_rr = -turn * maximumPower;
 
         return new double[] {
             drive_fl, drive_fr, drive_rl, drive_rr, 
