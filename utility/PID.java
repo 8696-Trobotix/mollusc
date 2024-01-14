@@ -27,7 +27,7 @@ public class PID {
 
     public double Kp, Ki, Kd, magnitude;
 
-    private double errorPrev, integral, t = 0;
+    private double errorPrev = 0, integral = 0, t = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -49,6 +49,7 @@ public class PID {
     }
 
     public void restart() {
+        integral = 0;
         t = runtime.seconds();
     }
 

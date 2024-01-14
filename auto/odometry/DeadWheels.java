@@ -87,8 +87,8 @@ public class DeadWheels {
         centerPrev = centerDis;
         headingPrev = heading;
 
-        pose.x += transformX * Math.cos(heading) - transformY * Math.sin(heading);
-        pose.y += transformX * Math.sin(heading) + transformY * Math.cos(heading);
+        pose.x += transformX * Math.cos(heading) - transformY * Math.sin(-heading);
+        pose.y += transformX * Math.sin(-heading) + transformY * Math.cos(heading);
         pose.z = heading;
         // */
 
@@ -144,8 +144,8 @@ public class DeadWheels {
         rightPrev = rightDis;
         centerPrev = centerDis;
 
-        pose.x += deltaX * Math.cos(pose.z) - deltaY * Math.sin(pose.z);
-        pose.y += deltaX * Math.sin(pose.z) + deltaY * Math.cos(pose.z);
+        pose.x += deltaX * Math.cos(pose.z) - deltaY * Math.sin(-pose.z);
+        pose.y += deltaX * Math.sin(-pose.z) + deltaY * Math.cos(pose.z);
         pose.z += deltaHeading;
         */
     }

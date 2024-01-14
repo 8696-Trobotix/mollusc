@@ -43,6 +43,10 @@ public class Interpreter {
             }
             String instructionName = tokenLine[0] + IDENTIFIER_DELIMITER;
             Object[] arguments = new Object[tokenLine.length - 1];
+
+            String strInstructionName = tokenLine[0] + IDENTIFIER_DELIMITER;
+            Object[] strArguments = new Object[tokenLine.length - 1];
+
             for (int i = 1; i < tokenLine.length; ++i) {
                 String token = tokenLine[i];
                 Object arg;
@@ -57,11 +61,17 @@ public class Interpreter {
                     arg = tokenLine[i];
                 }
                 arguments[i - 1] = arg;
+
+                strInstructionName += STRING_MANGLING;
+                strArguments[i - 1] = tokenLine[i];
             }
-            if (!actions.containsKey(instructionName)) {
+            if (actions.containsKey(instructionName)) {
+                instructions.add(new Instruction(instructionName, arguments, lineNum));
+            } else if (actions.containsKey(strInstructionName)) {
+                instructions.add(new Instruction(strInstructionName, strArguments, lineNum));
+            } else {
                 error(lineNum, "Unidentified instruction name / not declared. No instruction matches: " + instructionName);
             }
-            instructions.add(new Instruction(instructionName, arguments, lineNum));
         }
     }
 
