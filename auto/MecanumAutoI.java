@@ -76,15 +76,18 @@ public class MecanumAutoI implements Auto {
             base.rearRight.setPower(powers[rri]);
 
             int currentTime = (int)runtime.milliseconds();
+            boolean t = currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS;
             double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
             if (
-                currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS // At least the static timeout duration has passed.
+                t // At least the static timeout duration has passed.
                 && Math.abs(powerNet) < powerTolerance
                 && Math.abs(powerNetPrev) < powerTolerance 
             ) {
                 break;
             }
-            powerNetPrev = powerNet;
+            if (t) {
+                powerNetPrev = powerNet;
+            }
             previousTime = currentTime;
         }
 
