@@ -21,14 +21,17 @@ public class Make {
     public static IMU imu(
         String name, 
         RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection, 
-        RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection
+        RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection,
+        boolean resetIMU
     ) {
         IMU ret = hardwareMap.get(IMU.class, name);
         RevHubOrientationOnRobot IMUOrientation = new RevHubOrientationOnRobot(
             logoFacingDirection, usbFacingDirection
         );
         ret.initialize(new IMU.Parameters(IMUOrientation));
-        ret.resetYaw();
+        if (resetIMU) {
+            ret.resetYaw();
+        }
         return ret;
     }
 

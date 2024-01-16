@@ -25,16 +25,17 @@ import com.qualcomm.robotcore.util.Range;
 
 public class PID {
 
-    public double Kp, Ki, Kd, magnitude;
+    public double Kp, Ki, Kd, absoluteMinimum, magnitude;
 
     private double errorPrev = 0, integral = 0, t = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    public PID(double Kp, double Ki, double Kd, double magnitude) {
+    public PID(double Kp, double Ki, double Kd, double absoluteMinimum, double magnitude) {
         this.Kp = Kp;
         this.Ki = Ki;
         this.Kd = Kd;
+        this.absoluteMinimum = absoluteMinimum;
         this.magnitude = magnitude;
     }
 
@@ -45,7 +46,11 @@ public class PID {
         double derivative = (error - errorPrev) / dt;
         errorPrev = error;
         t = seconds;
-        return Range.clip(Kp * error + Ki * integral + Kd * derivative, -magnitude, magnitude);
+        double ret = Range.clip(Kp * error + Ki * integral + Kd * derivative, -magnitude, magnitude);
+        if (Math.abs(ret) < absoluteMinimum) {
+            return Math.signum(ret) * absoluteMinimum;
+        }
+        return ret;
     }
 
     public void restart() {
