@@ -76,10 +76,11 @@ public class MecanumAutoII implements Auto {
             base.rearRight.setPower(powers[3]);
 
             int currentTime = (int)runtime.milliseconds();
+            boolean t = currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS;
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
             boolean atCorrectPosition = positionToleranceSq >= a * a + b * b && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
             if (
-                currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS // At least the static timeout duration has passed.
+                t // At least the static timeout duration has passed.
                 && atCorrectPosition // Currently at correct position.
                 && wasAtCorrectPosition // Was at correct position at a time equal to or greater than the static timeout duration ago.
             ) {
@@ -88,7 +89,9 @@ public class MecanumAutoII implements Auto {
 
                 break;
             }
-            wasAtCorrectPosition = atCorrectPosition;
+            if (t) {
+                wasAtCorrectPosition = atCorrectPosition;
+            }
             previousTime = currentTime;
         }
 
