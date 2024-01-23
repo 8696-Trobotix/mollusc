@@ -1,14 +1,8 @@
-package org.firstinspires.ftc.teamcode.mollusc.auto;
+package org.firstinspires.ftc.teamcode.mollusc.auto.interpreter;
 
-public class Instruction {
-    public String name;
-    public Object[] arguments;
-    public int line;
-    public Instruction(String name, Object[] arguments, int line) {
-        this.name = name;
-        this.arguments = arguments;
-        this.line = line;
-    }
+@FunctionalInterface
+public interface Action {
+    void execute(Object [] arguments) throws Exception;
 }
 
 /*

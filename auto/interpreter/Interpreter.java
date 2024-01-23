@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.mollusc.auto;
+package org.firstinspires.ftc.teamcode.mollusc.auto.interpreter;
 
 import org.firstinspires.ftc.teamcode.mollusc.exception.ScriptParseException;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;

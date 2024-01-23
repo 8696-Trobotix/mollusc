@@ -23,19 +23,19 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-public class PID {
+public class PIDF {
 
-    public double Kp, Ki, Kd, absoluteMinimum, magnitude;
+    public double Kp, Ki, Kd, Kf, magnitude;
 
     private double errorPrev = 0, integral = 0, t = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    public PID(double Kp, double Ki, double Kd, double absoluteMinimum, double magnitude) {
+    public PIDF(double Kp, double Ki, double Kd, double Kf, double magnitude) {
         this.Kp = Kp;
         this.Ki = Ki;
         this.Kd = Kd;
-        this.absoluteMinimum = absoluteMinimum;
+        this.Kf = Kf;
         this.magnitude = magnitude;
     }
 
@@ -46,11 +46,8 @@ public class PID {
         double derivative = (error - errorPrev) / dt;
         errorPrev = error;
         t = seconds;
-        double ret = Range.clip(Kp * error + Ki * integral + Kd * derivative, -magnitude, magnitude);
-        if (Math.abs(ret) < absoluteMinimum) {
-            return Math.signum(ret) * absoluteMinimum;
-        }
-        return ret;
+        double ret = Kp * error + Ki * integral + Kd * derivative;
+        return Range.clip(ret + Math.signum(ret) * Kf, -magnitude, magnitude);
     }
 
     public void restart() {

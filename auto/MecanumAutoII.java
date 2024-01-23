@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
+import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.DeadWheels;
 import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
-import org.firstinspires.ftc.teamcode.mollusc.utility.PID;
+import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -23,7 +24,7 @@ public class MecanumAutoII implements Auto {
     public DrivetrainBaseFourWheel base;
     public DeadWheels deadWheels;
     public Interpreter interpreter;
-    public PID drivePID, strafePID, turnPID;
+    public PIDF drivePID, strafePID, turnPID;
     public double maximumPower;
     public double positionToleranceSq, headingTolerance;
 
@@ -31,9 +32,9 @@ public class MecanumAutoII implements Auto {
         DrivetrainBaseFourWheel base, 
         DeadWheels deadWheels, 
         Interpreter interpreter, 
-        PID drivePID, 
-        PID strafePID, 
-        PID turnPID, 
+        PIDF drivePID, 
+        PIDF strafePID, 
+        PIDF turnPID, 
         double maximumPower, 
         double positionTolerance, 
         double headingTolerance
@@ -58,8 +59,7 @@ public class MecanumAutoII implements Auto {
         turnPID.restart();
 
         ElapsedTime runtime = new ElapsedTime();
-        int previousTime = -STATIC_TIMEOUT_MILLISECONDS;
-        boolean wasAtCorrectPosition = false;
+        int previousTime = 0;
 
 //        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);
 
@@ -76,23 +76,14 @@ public class MecanumAutoII implements Auto {
             base.rearRight.setPower(powers[3]);
 
             int currentTime = (int)runtime.milliseconds();
-            boolean t = currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS;
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
             boolean atCorrectPosition = positionToleranceSq >= a * a + b * b && headingTolerance >= Math.abs(AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
-            if (
-                t // At least the static timeout duration has passed.
-                && atCorrectPosition // Currently at correct position.
-                && wasAtCorrectPosition // Was at correct position at a time equal to or greater than the static timeout duration ago.
-            ) {
-
-//                Mollusc.opMode.telemetry.log().add("Static stopped.");
-
+            if (!atCorrectPosition) {
+                previousTime = currentTime;
+            }
+            if (currentTime >= previousTime + STATIC_TIMEOUT_MILLISECONDS) {
                 break;
             }
-            if (t) {
-                wasAtCorrectPosition = atCorrectPosition;
-            }
-            previousTime = currentTime;
         }
 
         base.frontLeft.setPower(0);
@@ -125,7 +116,7 @@ public class MecanumAutoII implements Auto {
     public void waitDelay(double seconds) throws ParityException {
         LinearOpMode opMode = Configuration.useLinearOpMode();
         ElapsedTime temp = new ElapsedTime();
-        while (temp.seconds() < seconds) {
+        while (temp.seconds() < seconds && !opMode.isStopRequested()) {
             opMode.idle();
         }
     }
