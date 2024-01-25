@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.mollusc.auto.interpreter;
 
 @FunctionalInterface
 public interface Action {
-    void execute(Object [] arguments) throws Exception;
+    void execute(Object[] arguments) throws Exception;
 }
 
 /*

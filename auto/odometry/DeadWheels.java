@@ -93,7 +93,33 @@ public class DeadWheels {
         // */
 
         /*
-        // Use these calculations if the first method above doesn't work.
+        // Use these calculations if the method above doesn't work.
+        // Adapted from GM0.
+        // This one uses standard Euler integration.
+
+        double leftDis = left.getDisplacement();
+        double rightDis = right.getDisplacement();
+        double centerDis = center.getDisplacement();
+
+        double deltaLeft = leftDis - leftPrev;
+        double deltaRight = rightDis - rightPrev;
+        double deltaCenter = centerDis - centerPrev;
+
+        double deltaHeading = (deltaLeft - deltaRight) / trackWidth;
+        double deltaX = (deltaLeft + deltaRight) / 2;
+        double deltaY = deltaCenter - (centerOffset * deltaHeading);
+
+        leftPrev = leftDis;
+        rightPrev = rightDis;
+        centerPrev = centerDis;
+
+        pose.x += deltaX * Math.cos(pose.z) - deltaY * Math.sin(-pose.z);
+        pose.y += deltaX * Math.sin(-pose.z) + deltaY * Math.cos(pose.z);
+        pose.z += deltaHeading;
+        */
+
+        /*
+        // Use these calculations if the above two methods don't work.
         // This one may not work.
 
         // Modified from https://github.com/Beta8397/virtual_robot/blob/master/TeamCode/src/org/firstinspires/ftc/teamcode/EncBot.java.
@@ -121,32 +147,6 @@ public class DeadWheels {
         pose.x += deltaX * sinAvg - centerDis * cosAvg;
         pose.y += deltaX * cosAvg + centerDis * sinAvg;
         pose.z = AngleUnit.normalizeRadians(pose.z + deltaHeading);
-        */
-
-        /*
-        // Use these calculations if the two methods above don't work.
-        // Adapted from GM0.
-        // This one uses standard Euler integration.
-
-        double leftDis = left.getDisplacement();
-        double rightDis = right.getDisplacement();
-        double centerDis = center.getDisplacement();
-
-        double deltaLeft = leftDis - leftPrev;
-        double deltaRight = rightDis - rightPrev;
-        double deltaCenter = centerDis - centerPrev;
-
-        double deltaHeading = (deltaLeft - deltaRight) / trackWidth;
-        double deltaX = (deltaLeft + deltaRight) / 2;
-        double deltaY = deltaCenter - (centerOffset * deltaHeading);
-
-        leftPrev = leftDis;
-        rightPrev = rightDis;
-        centerPrev = centerDis;
-
-        pose.x += deltaX * Math.cos(pose.z) - deltaY * Math.sin(-pose.z);
-        pose.y += deltaX * Math.sin(-pose.z) + deltaY * Math.cos(pose.z);
-        pose.z += deltaHeading;
         */
     }
 

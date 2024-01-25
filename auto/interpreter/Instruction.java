@@ -4,6 +4,7 @@ public class Instruction {
     public String name;
     public Object[] arguments;
     public int line;
+
     public Instruction(String name, Object[] arguments, int line) {
         this.name = name;
         this.arguments = arguments;
