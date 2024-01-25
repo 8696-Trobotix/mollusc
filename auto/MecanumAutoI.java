@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
+import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
-import org.firstinspires.ftc.teamcode.mollusc.utility.PID;
+import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import com.qualcomm.robotcore.hardware.IMU;
@@ -21,7 +22,7 @@ public class MecanumAutoI implements Auto {
 
     public DrivetrainBaseFourWheel base;
     public Interpreter interpreter;
-    public PID drivePID, strafePID, turnPID;
+    public PIDF drivePID, strafePID, turnPID;
     public IMU imu;
     public double maximumPower;
     public double heading = 0.0;
@@ -30,9 +31,9 @@ public class MecanumAutoI implements Auto {
     public MecanumAutoI(
         DrivetrainBaseFourWheel base, 
         Interpreter interpreter, 
-        PID drivePID, 
-        PID strafePID, 
-        PID turnPID, 
+        PIDF drivePID, 
+        PIDF strafePID, 
+        PIDF turnPID, 
         IMU imu, 
         double maximumPower, 
         double powerTolerance
@@ -64,8 +65,7 @@ public class MecanumAutoI implements Auto {
 
     private void setPower(LinearOpMode opMode, Pose newPose, int fli, int fri, int rli, int rri) {
         ElapsedTime runtime = new ElapsedTime();
-        int previousTime = -STATIC_TIMEOUT_MILLISECONDS;
-        double powerNetPrev = 1.0;
+        int previousTime = 0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
             double[] powers = drivePowers(newPose);
@@ -76,19 +76,13 @@ public class MecanumAutoI implements Auto {
             base.rearRight.setPower(powers[rri]);
 
             int currentTime = (int)runtime.milliseconds();
-            boolean t = currentTime / STATIC_TIMEOUT_MILLISECONDS != previousTime / STATIC_TIMEOUT_MILLISECONDS;
             double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
-            if (
-                t // At least the static timeout duration has passed.
-                && Math.abs(powerNet) < powerTolerance
-                && Math.abs(powerNetPrev) < powerTolerance 
-            ) {
+            if (Math.abs(powerNet) > powerTolerance) {
+                previousTime = currentTime;
+            }
+            if (currentTime >= previousTime + STATIC_TIMEOUT_MILLISECONDS) {
                 break;
             }
-            if (t) {
-                powerNetPrev = powerNet;
-            }
-            previousTime = currentTime;
         }
 
         base.frontLeft.setPower(0);
@@ -131,7 +125,7 @@ public class MecanumAutoI implements Auto {
     public void waitDelay(double seconds) throws ParityException {
         LinearOpMode opMode = Configuration.useLinearOpMode();
         ElapsedTime temp = new ElapsedTime();
-        while (temp.seconds() < seconds) {
+        while (temp.seconds() < seconds && !opMode.isStopRequested()) {
             opMode.idle();
         }
     }

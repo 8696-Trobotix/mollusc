@@ -1,15 +1,21 @@
 /*
-From GM0.
+From GM0:
 
-The most common method for tuning a PID controller is as follows:
+    The most common method for tuning a PID controller is as follows:
 
-    Set the I and D gains to zero
+        Set the I and D gains to zero
 
-    Increase the P gain until there are oscillations around the target
+        Increase the P gain until there are oscillations around the target
 
-    Increase the D gain until no overshoot occurs
+        Increase the D gain until no overshoot occurs
 
-    If there is steady state error, increase the I gain until it is corrected
+        If there is steady state error, increase the I gain until it is corrected
+
+From CTRL ALT FTC.
+
+    For FTC motor control I recommend making it so that your integralSumLimit * Ki is around ~0.25.
+
+Remember to reset when reference changes.
 */
 
 package org.firstinspires.ftc.teamcode.mollusc.utility;
@@ -23,34 +29,36 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-public class PID {
+public class PIDF {
 
-    public double Kp, Ki, Kd, absoluteMinimum, magnitude;
+    public double Kp, Ki, Kd, Kf, integralLimit, magnitude;
 
     private double errorPrev = 0, integral = 0, t = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
+    public Filter.LowPass filter = new Filter.LowPass(0, 0.8);
 
-    public PID(double Kp, double Ki, double Kd, double absoluteMinimum, double magnitude) {
+    public PIDF(double Kp, double Ki, double Kd, double Kf, double integralLimit, double magnitude) {
         this.Kp = Kp;
         this.Ki = Ki;
         this.Kd = Kd;
-        this.absoluteMinimum = absoluteMinimum;
+        this.Kf = Kf;
+        this.integralLimit = integralLimit;
         this.magnitude = magnitude;
     }
 
     public double out(double error) {
         double seconds = runtime.seconds();
         double dt = seconds - t;
-        integral += error * dt;
-        double derivative = (error - errorPrev) / dt;
+
+        integral = Range.clip(integral + error * dt, -integralLimit, integralLimit);
+        double derivative = filter.out(error - errorPrev) / dt;
+
         errorPrev = error;
         t = seconds;
-        double ret = Range.clip(Kp * error + Ki * integral + Kd * derivative, -magnitude, magnitude);
-        if (Math.abs(ret) < absoluteMinimum) {
-            return Math.signum(ret) * absoluteMinimum;
-        }
-        return ret;
+
+        double ret = Kp * error + Ki * integral + Kd * derivative;
+        return Range.clip(ret + Math.signum(ret) * Kf, -magnitude, magnitude);
     }
 
     public void restart() {
