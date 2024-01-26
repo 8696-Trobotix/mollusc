@@ -28,6 +28,11 @@ public class MecanumAutoI implements Auto {
     public double heading = 0.0;
     public double powerTolerance;
 
+    private double drive_fl, drive_fr, drive_rl, drive_rr, 
+                   strafe_fl, strafe_fr, strafe_rl, strafe_rr, 
+                   turn_fl, turn_fr, turn_rl, turn_rr;
+    private double[] powers = new double[12];
+
     public MecanumAutoI(
         DrivetrainBaseFourWheel base, 
         Interpreter interpreter, 
@@ -68,7 +73,7 @@ public class MecanumAutoI implements Auto {
         int previousTime = 0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
-            double[] powers = drivePowers(newPose);
+            drivePowers(newPose);
 
             base.frontLeft.setPower(powers[fli]);
             base.frontRight.setPower(powers[fri]);
@@ -99,27 +104,25 @@ public class MecanumAutoI implements Auto {
         double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
 
         double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
-        double drive_fl = (drive + turn) / drive_max * maximumPower;
-        double drive_fr = (drive - turn) / drive_max * maximumPower;
-        double drive_rl = (drive + turn) / drive_max * maximumPower;
-        double drive_rr = (drive - turn) / drive_max * maximumPower;
+        powers[0] = drive_fl = (drive + turn) / drive_max * maximumPower;
+        powers[1] = drive_fr = (drive - turn) / drive_max * maximumPower;
+        powers[2] = drive_rl = (drive + turn) / drive_max * maximumPower;
+        powers[3] = drive_rr = (drive - turn) / drive_max * maximumPower;
 
         double strafe_max = Math.max(Math.abs(strafe) + Math.abs(turn), 1);
-        double strafe_fl = (strafe + turn) / strafe_max * maximumPower;
-        double strafe_fr = (-strafe - turn) / strafe_max * maximumPower;
-        double strafe_rl = (-strafe + turn) / strafe_max * maximumPower;
-        double strafe_rr = (strafe - turn) / strafe_max * maximumPower;
+        powers[4] = strafe_fl = (strafe + turn) / strafe_max * maximumPower;
+        powers[5] = strafe_fr = (-strafe - turn) / strafe_max * maximumPower;
+        powers[6] = strafe_rl = (-strafe + turn) / strafe_max * maximumPower;
+        powers[7] = strafe_rr = (strafe - turn) / strafe_max * maximumPower;
 
-        double turn_fl = turn * maximumPower;
-        double turn_fr = -turn * maximumPower;
-        double turn_rl = turn * maximumPower;
-        double turn_rr = -turn * maximumPower;
+        powers[8] = turn_fl = turn * maximumPower;
+        powers[9] = turn_fr = -turn * maximumPower;
+        powers[10] = turn_rl = turn * maximumPower;
+        powers[11] = turn_rr = -turn * maximumPower;
+    }
 
-        return new double[] {
-            drive_fl, drive_fr, drive_rl, drive_rr, 
-            strafe_fl, strafe_fr, strafe_rl, strafe_rr, 
-            turn_fl, turn_fr, turn_rl, turn_rr
-        };
+    public double[] getDrivePowers() {
+        return powers.clone();
     }
 
     public void waitDelay(double seconds) throws ParityException {

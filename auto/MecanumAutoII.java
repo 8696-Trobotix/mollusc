@@ -28,6 +28,8 @@ public class MecanumAutoII implements Auto {
     public double maximumPower;
     public double positionToleranceSq, headingTolerance;
 
+    private double fl, fr, rl, rr;
+
     public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
         DeadWheels deadWheels, 
@@ -64,16 +66,16 @@ public class MecanumAutoII implements Auto {
 //        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);
 
         while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
-            double[] powers = drivePowers(newPose);
+            drivePowers(newPose);
 
 //            Mollusc.opMode.telemetry.addData("Position", deadWheels.pose);
 //            Mollusc.opMode.telemetry.addData("Powers", Arrays.toString(powers));
 //            Mollusc.opMode.telemetry.update();
 
-            base.frontLeft.setPower(powers[0]);
-            base.frontRight.setPower(powers[1]);
-            base.rearLeft.setPower(powers[2]);
-            base.rearRight.setPower(powers[3]);
+            base.frontLeft.setPower(fl);
+            base.frontRight.setPower(fr);
+            base.rearLeft.setPower(rl);
+            base.rearRight.setPower(rr);
 
             int currentTime = (int)runtime.milliseconds();
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
@@ -92,7 +94,7 @@ public class MecanumAutoII implements Auto {
         base.rearRight.setPower(0);
     }
 
-    public double[] drivePowers(Pose newPose) {
+    private void drivePowers(Pose newPose) {
         double drive = drivePID.out(newPose.x - deadWheels.pose.x);
         double strafe = strafePID.out(newPose.y - deadWheels.pose.y);
         double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
@@ -103,13 +105,14 @@ public class MecanumAutoII implements Auto {
         double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
         // Normalize. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
-        double fl = (rotY + rotX + turn) / max * maximumPower;
-        double fr = (rotY - rotX - turn) / max * maximumPower;
-        double rl = (rotY - rotX + turn) / max * maximumPower;
-        double rr = (rotY + rotX - turn) / max * maximumPower;
+        fl = (rotY + rotX + turn) / max * maximumPower;
+        fr = (rotY - rotX - turn) / max * maximumPower;
+        rl = (rotY - rotX + turn) / max * maximumPower;
+        rr = (rotY + rotX - turn) / max * maximumPower;
 
         deadWheels.update();
-
+    }
+    public double[] getDrivePowers() {
         return new double[] {fl, fr, rl, rr};
     }
 
