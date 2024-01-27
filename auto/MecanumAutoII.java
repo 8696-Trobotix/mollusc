@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
 import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
+import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.DeadWheels;
 import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
@@ -25,6 +26,7 @@ public class MecanumAutoII implements Auto {
     public DeadWheels deadWheels;
     public Interpreter interpreter;
     public PIDF drivePID, strafePID, turnPID;
+    public VoltageCompensator c1, c2, c3, c4;
     public double maximumPower;
     public double positionToleranceSq, headingTolerance;
 
@@ -37,6 +39,8 @@ public class MecanumAutoII implements Auto {
         PIDF drivePID, 
         PIDF strafePID, 
         PIDF turnPID, 
+        PIDF voltageCompensatorPIDF, 
+        double maximumCurrent, 
         double maximumPower, 
         double positionTolerance, 
         double headingTolerance
@@ -50,6 +54,11 @@ public class MecanumAutoII implements Auto {
         this.maximumPower = maximumPower;
         this.positionToleranceSq = positionTolerance * positionTolerance;
         this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
+
+        c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        c4 = new VoltageCompensator(base.rearRight, new PIDF(voltageCompensatorPIDF), maximumCurrent);
     }
 
     // Field-centric style automated drive with three dead wheel localizers.
@@ -109,6 +118,12 @@ public class MecanumAutoII implements Auto {
         fr = (rotY - rotX - turn) / max * maximumPower;
         rl = (rotY - rotX + turn) / max * maximumPower;
         rr = (rotY + rotX - turn) / max * maximumPower;
+
+        double voltage = getVoltage();
+        fl += c1.adjustPower(fl, voltage);
+        fr += c2.adjustPower(fr, voltage);
+        rl += c3.adjustPower(rl, voltage);
+        rr += c4.adjustPower(rr, voltage);
 
         deadWheels.update();
     }

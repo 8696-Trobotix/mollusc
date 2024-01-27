@@ -47,6 +47,15 @@ public class PIDF {
         this.magnitude = magnitude;
     }
 
+    public PIDF(PIDF reference) {
+        this.Kp = reference.Kp;
+        this.Ki = reference.Ki;
+        this.Kd = reference.Kd;
+        this.Kf = reference.Kf;
+        this.integralLimit = reference.integralLimit;
+        this.magnitude = reference.magnitude;
+    }
+
     public double out(double error) {
         double seconds = runtime.seconds();
         double dt = seconds - t;

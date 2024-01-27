@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
 import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
+import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
@@ -24,6 +25,7 @@ public class MecanumAutoI implements Auto {
     public Interpreter interpreter;
     public PIDF drivePID, strafePID, turnPID;
     public IMU imu;
+    public VoltageCompensator c1, c2, c3, c4;
     public double maximumPower;
     public double heading = 0.0;
     public double powerTolerance;
@@ -40,6 +42,8 @@ public class MecanumAutoI implements Auto {
         PIDF strafePID, 
         PIDF turnPID, 
         IMU imu, 
+        PIDF voltageCompensatorPIDF, 
+        double maximumCurrent, 
         double maximumPower, 
         double powerTolerance
     ) {
@@ -51,6 +55,11 @@ public class MecanumAutoI implements Auto {
         this.imu = imu;
         this.maximumPower = maximumPower;
         this.powerTolerance = powerTolerance;
+
+        c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        c4 = new VoltageCompensator(base.rearRight, new PIDF(voltageCompensatorPIDF), maximumCurrent);
     }
 
     // Field-centric style automated drive.
@@ -103,22 +112,24 @@ public class MecanumAutoI implements Auto {
         heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
 
+        double voltage = getVoltage();
+
         double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
-        powers[0] = drive_fl = (drive + turn) / drive_max * maximumPower;
-        powers[1] = drive_fr = (drive - turn) / drive_max * maximumPower;
-        powers[2] = drive_rl = (drive + turn) / drive_max * maximumPower;
-        powers[3] = drive_rr = (drive - turn) / drive_max * maximumPower;
+        powers[0] = drive_fl = (drive + turn) / drive_max * maximumPower + c1.adjustPower(fl, voltage);
+        powers[1] = drive_fr = (drive - turn) / drive_max * maximumPower + c2.adjustPower(fr, voltage);
+        powers[2] = drive_rl = (drive + turn) / drive_max * maximumPower + c3.adjustPower(rl, voltage);
+        powers[3] = drive_rr = (drive - turn) / drive_max * maximumPower + c4.adjustPower(rr, voltage);
 
         double strafe_max = Math.max(Math.abs(strafe) + Math.abs(turn), 1);
-        powers[4] = strafe_fl = (strafe + turn) / strafe_max * maximumPower;
-        powers[5] = strafe_fr = (-strafe - turn) / strafe_max * maximumPower;
-        powers[6] = strafe_rl = (-strafe + turn) / strafe_max * maximumPower;
-        powers[7] = strafe_rr = (strafe - turn) / strafe_max * maximumPower;
+        powers[4] = strafe_fl = (strafe + turn) / strafe_max * maximumPower + c1.adjustPower(fl, voltage);
+        powers[5] = strafe_fr = (-strafe - turn) / strafe_max * maximumPower + c2.adjustPower(fr, voltage);
+        powers[6] = strafe_rl = (-strafe + turn) / strafe_max * maximumPower + c3.adjustPower(rl, voltage);
+        powers[7] = strafe_rr = (strafe - turn) / strafe_max * maximumPower + c4.adjustPower(rr, voltage);
 
-        powers[8] = turn_fl = turn * maximumPower;
-        powers[9] = turn_fr = -turn * maximumPower;
-        powers[10] = turn_rl = turn * maximumPower;
-        powers[11] = turn_rr = -turn * maximumPower;
+        powers[8] = turn_fl = turn * maximumPower + c1.adjustPower(fl, voltage);
+        powers[9] = turn_fr = -turn * maximumPower + c2.adjustPower(fr, voltage);
+        powers[10] = turn_rl = turn * maximumPower + c3.adjustPower(rl, voltage);
+        powers[11] = turn_rr = -turn * maximumPower + c4.adjustPower(rr, voltage);
     }
 
     public double[] getDrivePowers() {
