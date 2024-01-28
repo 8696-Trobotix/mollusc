@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
 import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -21,11 +23,22 @@ public class VoltageCompensator {
         this.maxCurrent = maxCurrent;
     }
 
-    // Returns a feed-forward value to be added to the original power.
+    // Returns a feed-forward value plus the original power.
     public double adjustPower(double power, double voltage) {
         double targetCurrent = power / (voltage / MAX_VOLTAGE);
         double actualCurrent = filter.out(motor.getCurrent(CurrentUnit.AMPS)) / maxCurrent;
-        return pidf.out(targetCurrent - actualCurrent);
+        return power + pidf.out(targetCurrent - actualCurrent);
+    }
+
+    public static double getVoltage() {
+        double ret = MAX_VOLTAGE;
+        for (VoltageSensor sensor : Mollusc.opMode.hardwareMap.voltageSensor) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0 && voltage < ret) {
+                ret = voltage;
+            }
+        }
+        return ret;
     }
 }
 

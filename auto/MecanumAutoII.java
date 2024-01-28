@@ -114,16 +114,12 @@ public class MecanumAutoII implements Auto {
         double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
         // Normalize. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
-        fl = (rotY + rotX + turn) / max * maximumPower;
-        fr = (rotY - rotX - turn) / max * maximumPower;
-        rl = (rotY - rotX + turn) / max * maximumPower;
-        rr = (rotY + rotX - turn) / max * maximumPower;
 
-        double voltage = getVoltage();
-        fl += c1.adjustPower(fl, voltage);
-        fr += c2.adjustPower(fr, voltage);
-        rl += c3.adjustPower(rl, voltage);
-        rr += c4.adjustPower(rr, voltage);
+        double voltage = VoltageCompensator.getVoltage();
+        fl = c1.adjustPower((rotY + rotX + turn) / max * maximumPower, voltage);
+        fr = c2.adjustPower((rotY - rotX - turn) / max * maximumPower, voltage);
+        rl = c3.adjustPower((rotY - rotX + turn) / max * maximumPower, voltage);
+        rr = c4.adjustPower((rotY + rotX - turn) / max * maximumPower, voltage);
 
         deadWheels.update();
     }

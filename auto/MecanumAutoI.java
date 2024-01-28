@@ -112,24 +112,24 @@ public class MecanumAutoI implements Auto {
         heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
 
-        double voltage = getVoltage();
+        double voltage = VoltageCompensator.getVoltage();
 
         double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
-        powers[0] = drive_fl = (drive + turn) / drive_max * maximumPower + c1.adjustPower(fl, voltage);
-        powers[1] = drive_fr = (drive - turn) / drive_max * maximumPower + c2.adjustPower(fr, voltage);
-        powers[2] = drive_rl = (drive + turn) / drive_max * maximumPower + c3.adjustPower(rl, voltage);
-        powers[3] = drive_rr = (drive - turn) / drive_max * maximumPower + c4.adjustPower(rr, voltage);
+        powers[0] = drive_fl = c1.adjustPower((drive + turn) / drive_max * maximumPower, voltage);
+        powers[1] = drive_fr = c2.adjustPower((drive - turn) / drive_max * maximumPower, voltage);
+        powers[2] = drive_rl = c3.adjustPower((drive + turn) / drive_max * maximumPower, voltage);
+        powers[3] = drive_rr = c4.adjustPower((drive - turn) / drive_max * maximumPower, voltage);
 
         double strafe_max = Math.max(Math.abs(strafe) + Math.abs(turn), 1);
-        powers[4] = strafe_fl = (strafe + turn) / strafe_max * maximumPower + c1.adjustPower(fl, voltage);
-        powers[5] = strafe_fr = (-strafe - turn) / strafe_max * maximumPower + c2.adjustPower(fr, voltage);
-        powers[6] = strafe_rl = (-strafe + turn) / strafe_max * maximumPower + c3.adjustPower(rl, voltage);
-        powers[7] = strafe_rr = (strafe - turn) / strafe_max * maximumPower + c4.adjustPower(rr, voltage);
+        powers[4] = strafe_fl = c1.adjustPower((strafe + turn) / strafe_max * maximumPower, voltage);
+        powers[5] = strafe_fr = c2.adjustPower((-strafe - turn) / strafe_max * maximumPower, voltage);
+        powers[6] = strafe_rl = c3.adjustPower((-strafe + turn) / strafe_max * maximumPower, voltage);
+        powers[7] = strafe_rr = c4.adjustPower((strafe - turn) / strafe_max * maximumPower, voltage);
 
-        powers[8] = turn_fl = turn * maximumPower + c1.adjustPower(fl, voltage);
-        powers[9] = turn_fr = -turn * maximumPower + c2.adjustPower(fr, voltage);
-        powers[10] = turn_rl = turn * maximumPower + c3.adjustPower(rl, voltage);
-        powers[11] = turn_rr = -turn * maximumPower + c4.adjustPower(rr, voltage);
+        powers[8] = turn_fl = c1.adjustPower(turn * maximumPower, voltage);
+        powers[9] = turn_fr = c2.adjustPower(-turn * maximumPower, voltage);
+        powers[10] = turn_rl = c3.adjustPower(turn * maximumPower, voltage);
+        powers[11] = turn_rr = c4.adjustPower(-turn * maximumPower, voltage);
     }
 
     public double[] getDrivePowers() {
