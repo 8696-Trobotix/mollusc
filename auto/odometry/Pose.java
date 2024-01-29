@@ -9,6 +9,11 @@ public class Pose {
         this.y = y;
         this.z = z;
     }
+    public Pose(Pose other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.x = other.z;
+    }
 
     @Override
     public String toString() {

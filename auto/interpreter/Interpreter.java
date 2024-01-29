@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.mollusc.auto.interpreter;
 
 import org.firstinspires.ftc.teamcode.mollusc.exception.ScriptParseException;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
+
 import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.utility.Asset;
+
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import java.util.ArrayList;
@@ -11,24 +13,25 @@ import java.util.HashMap;
 import java.util.Arrays;
 
 public class Interpreter {
-
     private static final String IDENTIFIER_DELIMITER = "-", INTEGER_MANGLING = "i", DOUBLE_MANGLING = "f", STRING_MANGLING = "s";
-    public static Action noneAction = (Object[] args) -> {};
+    public static final Action NONE_ACTION = (Object[] args) -> {};
 
     private ArrayList<Instruction> instructions = new ArrayList<>();
     private HashMap<String, Action> actions = new HashMap<>();
     private String[][] script;
 
     private int instructionPointer = 0;
-    public boolean running = true;
+    private boolean running = true;
 
     public Interpreter(Asset asset) throws ParityException {
         Configuration.useLinearOpMode();
         script = asset.getTokens();
+        parse(script);
     }
     public Interpreter(String[] rawLines) throws ParityException {
         Configuration.useLinearOpMode();
         script = Asset.tokenize(rawLines);
+        parse(script);
     }
 
     public void parse(String[][] tokens) throws ScriptParseException {
@@ -41,6 +44,7 @@ public class Interpreter {
             if (tokenLine[0].contains("-")) {
                 error(lineNum, "Instruction identifier must not contain IDENTIFIER_DELIMITER: " + tokenLine[0]);
             }
+
             String instructionName = tokenLine[0] + IDENTIFIER_DELIMITER;
             Object[] arguments = new Object[tokenLine.length - 1];
 
@@ -76,18 +80,18 @@ public class Interpreter {
     }
 
     public void run(boolean log) throws Exception {
-        parse(script);
         int instructionCount = instructions.size();
-        for (; running 
+        while (
+            running 
             && instructionPointer < instructionCount 
-            && instructionPointer > -1; 
-            ++instructionPointer
+            && instructionPointer > -1
         ) {
             Instruction i = instructions.get(instructionPointer);
             if (log) {
                 Mollusc.opMode.telemetry.log().add(i.line + ": " + i.name + ' ' + Arrays.toString(i.arguments));
             }
             actions.get(i.name).execute(i.arguments);
+            ++instructionPointer;
         }
     }
 
@@ -149,6 +153,22 @@ public class Interpreter {
 
     public HashMap<String, Action> getActions() {
         return actions;
+    }
+
+    public String[][] getScriptTokens() {
+        return script;
+    }
+
+    // Use `jumpTo` to set the instruction pointer.
+    public int getInstructionPointer() {
+        return instructionPointer;
+    }
+
+    public boolean getRunning() {
+        return running;
+    }
+    public boolean setRunning(boolean running) {
+        this.running = running;
     }
 }
 
