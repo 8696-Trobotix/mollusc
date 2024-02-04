@@ -22,6 +22,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumAutoI extends MecanumAutoBase implements Auto {
+    
     private IMU imu;
     private double headingOffsetRadians = 0.0;
     private double powerTolerance;

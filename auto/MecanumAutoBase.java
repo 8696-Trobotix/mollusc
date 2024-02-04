@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 public abstract class MecanumAutoBase {
+    
     private double moveTimeoutSeconds = 5.0;
     private int staticTimeoutMilliseconds = 500;
 

@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.mollusc.wrapper.Encoder;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class DeadWheels {
-
+    
     private Pose pose;
     private Encoder left, right, center;
 
