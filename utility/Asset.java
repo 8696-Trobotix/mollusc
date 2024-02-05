@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
-import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
-
 import org.firstinspires.ftc.teamcode.mollusc.exception.AssetRetrievalException;
+
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import java.util.stream.Collectors;
 import java.util.LinkedList;

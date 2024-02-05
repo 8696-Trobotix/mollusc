@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
 
 public interface Drivetrain {
-
     public void drive(double drive, double strafe, double turn);
 }
 

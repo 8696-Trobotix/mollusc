@@ -10,8 +10,7 @@ public class Mollusc {
 
     public static void init(OpMode currentOpMode) {
         opMode = currentOpMode;
-        Controls.singlePressMarkers.clear();
-        Controls.holdMarkers.clear();
+        Controls.clearMarkers();
     }
 
     public static void deinit() {
