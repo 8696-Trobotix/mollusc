@@ -37,7 +37,7 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
         PIDF strafePID, 
         PIDF turnPID, 
         PIDF voltageCompensatorPIDF, 
-        double maximumCurrent, 
+        double maxCurrent, 
         double positionTolerance, 
         double headingTolerance
     ) {
@@ -50,19 +50,25 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
         this.positionToleranceSq = positionTolerance * positionTolerance;
         this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
 
-        c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maximumCurrent);
-        c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maximumCurrent);
-        c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maximumCurrent);
-        c4 = new VoltageCompensator(base.rearRight, new PIDF(voltageCompensatorPIDF), maximumCurrent);
+        PIDF emptyPIDF = new PIDF(0, 0, 0, 0);
+        c1 = new VoltageCompensator(base.frontLeft, emptyPIDF, 0);
+        c2 = new VoltageCompensator(base.frontRight, emptyPIDF, 0);
+        c3 = new VoltageCompensator(base.rearLeft, emptyPIDF, 0);
+        c4 = new VoltageCompensator(base.rearRight, emptyPIDF, 0);
+    }
+
+    public void setVoltageCompensator(PIDF voltageCompensatorPIDF, double maxCurrent) {
+        c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
+        c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
+        c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
+        c4 = new VoltageCompensator(base.rearRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
     }
 
     // Field-centric style automated drive with three dead wheel localizers.
     public void driveTo(Pose newPose) throws ParityException {
         LinearOpMode opMode = Configuration.useLinearOpMode();
 
-        drivePID.restart();
-        strafePID.restart();
-        turnPID.restart();
+        resetPIDF();
 
         ElapsedTime runtime = new ElapsedTime();
         int previousTime = 0;
@@ -118,8 +124,15 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
 
         deadWheels.update();
     }
-    public double[] getDrivePowers() {
-        return new double[] {fl, fr, rl, rr};
+
+    public void resetPIDF() {
+        drivePIDF.restart();
+        strafePIDF.restart();
+        turnPIDF.restart();
+    }
+    public double[] getDrivePowers(Pose newPose) {
+        drivePowers(newPose);
+        return new double [] {fl, fr, rl, rr};
     }
 
     public DeadWheels getDeadWheels() {
@@ -133,11 +146,11 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
         this.positionToleranceSq = tolerance * tolerance;
     }
 
-    public double getHeadingTolerance() {
+    public double getHeadingToleranceRadians() {
         return headingTolerance;
     }
-    public void setHeadingTolerance(double tolerance) {
-        this.heading = tolerance;
+    public void setHeadingToleranceRadians(double radians) {
+        this.headingTolerance = radians;
     }
 }
 

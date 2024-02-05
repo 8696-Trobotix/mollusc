@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 public abstract class MecanumAutoBase {
     
-    private double moveTimeoutSeconds = 5.0;
-    private int staticTimeoutMilliseconds = 500;
+    public double moveTimeoutSeconds = 5.0;
+    public int staticTimeoutMilliseconds = 500;
 
-    private DrivetrainBaseFourWheel base;
-    private Interpreter interpreter;
-    private PIDF drivePIDF, strafePIDF, turnPIDF;
-    private VoltageCompensator c1, c2, c3, c4;
-    private double maxPower = 1.0;
+    public DrivetrainBaseFourWheel base;
+    public Interpreter interpreter;
+    public PIDF drivePIDF, strafePIDF, turnPIDF;
+    public VoltageCompensator c1, c2, c3, c4;
+    public double maxPower = 1.0;
 
     public void waitDelay(double seconds) throws ParityException {
         LinearOpMode opMode = Configuration.useLinearOpMode();
@@ -39,53 +39,6 @@ public abstract class MecanumAutoBase {
         interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
             staticTimeoutMilliseconds = (Integer)t[0];
         }, Integer.class);
-    }
-
-    public double getMoveTimeoutSeconds() {
-        return moveTimeoutSeconds;
-    }
-    public void setMoveTimeoutSeconds(double seconds) {
-        this.moveTimeoutSeconds = seconds;
-    }
-
-    public int getStaticTimeoutMilliseconds() {
-        return staticTimeoutMilliseconds;
-    }
-    public void setStaticTimeoutMilliseconds(double milliseconds) {
-        this.staticTimeoutMilliseconds = milliseconds;
-    }
-
-    public DrivetrainBaseFourWheel getBase() {
-        return base;
-    }
-
-    public Interpreter getInterpreter() {
-        return interpreter;
-    }
-    public void setInterpreter(Interpreter interpreter) {
-        this.interpreter = interpreter;
-    }
-
-    public PIDF getDrivePIDF() {
-        return drivePIDF;
-    }
-    public PIDF getStrafePIDF() {
-        return strafePIDF;
-    }
-    public PIDF getTurnPIDF() {
-        return turnPIDF;
-    }
-
-    // Order: frontLeft, frontRight, rearLeft, rearRight.
-    public VoltageCompensator[] getVoltageCompensators() {
-        return new VoltageCompensator[] {c1, c2, c3, c4};
-    }
-
-    public double getMaxPower() {
-        return maxPower;
-    }
-    public void setMaxPower(double maxPower) {
-        this.maxPower = maxPower;
     }
 }
 

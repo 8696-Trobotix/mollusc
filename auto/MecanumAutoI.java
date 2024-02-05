@@ -27,10 +27,7 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
     private double headingOffsetRadians = 0.0;
     private double powerTolerance;
 
-    private double drive_fl, drive_fr, drive_rl, drive_rr, 
-                   strafe_fl, strafe_fr, strafe_rl, strafe_rr, 
-                   turn_fl, turn_fr, turn_rl, turn_rr;
-    private double[] powers = new double[12];
+    private double fl, fr, rl, rr;
 
     public MecanumAutoI(
         DrivetrainBaseFourWheel base, 
@@ -39,8 +36,6 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
         PIDF strafePIDF, 
         PIDF turnPIDF, 
         IMU imu, 
-        PIDF voltageCompensatorPIDF, 
-        double maxCurrent, 
         double powerTolerance
     ) {
         this.base = base;
@@ -51,6 +46,14 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
         this.imu = imu;
         this.powerTolerance = powerTolerance;
 
+        PIDF emptyPIDF = new PIDF(0, 0, 0, 0);
+        c1 = new VoltageCompensator(base.frontLeft, emptyPIDF, 0);
+        c2 = new VoltageCompensator(base.frontRight, emptyPIDF, 0);
+        c3 = new VoltageCompensator(base.rearLeft, emptyPIDF, 0);
+        c4 = new VoltageCompensator(base.rearRight, emptyPIDF, 0);
+    }
+
+    public void setVoltageCompensator(PIDF voltageCompensatorPIDF, double maxCurrent) {
         c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
         c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
         c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
@@ -62,27 +65,18 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
     public void driveTo(Pose newPose) throws ParityException {
         LinearOpMode opMode = Configuration.useLinearOpMode();
 
-        drivePIDF.restart();
-        setPower(opMode, newPose, 0, 1, 2, 3);
+        resetPIDF();
 
-        strafePIDF.restart();
-        setPower(opMode, newPose, 4, 5, 6, 7);
-
-        turnPIDF.restart();
-        setPower(opMode, newPose, 8, 9, 10, 11);
-    }
-
-    private void setPower(LinearOpMode opMode, Pose newPose, int fli, int fri, int rli, int rri) {
         ElapsedTime runtime = new ElapsedTime();
         int previousTime = 0;
 
         while (opMode.opModeIsActive() && runtime.seconds() < moveTimeoutSeconds) {
             drivePowers(newPose);
 
-            base.frontLeft.setPower(powers[fli]);
-            base.frontRight.setPower(powers[fri]);
-            base.rearLeft.setPower(powers[rli]);
-            base.rearRight.setPower(powers[rri]);
+            base.frontLeft.setPower(fl);
+            base.frontRight.setPower(fr);
+            base.rearLeft.setPower(rl);
+            base.rearRight.setPower(rr);
 
             int currentTime = (int)runtime.milliseconds();
             double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
@@ -100,35 +94,46 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
         base.rearRight.setPower(0);
     }
 
-    public double[] drivePowers(Pose newPose) {
+    private double[] drivePowers(Pose newPose) {
         int[] positions = base.getEncoderCounts();
         double drive = drivePIDF.out(newPose.x - (positions[0] + positions[1] + positions[2] + positions[3]) / 4);
-        double strafe = strafePIDF.out(newPose.y - (positions[0] + positions[1]) / 2);
+        double strafe = strafePIDF.out(newPose.y - (positions[0] + positions[3]) / 2);
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + headingOffsetRadians;
         double turn = turnPIDF.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
 
         double voltage = VoltageCompensator.getVoltage();
 
         double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
-        powers[0] = drive_fl = c1.adjustPower((drive + turn) / drive_max * maxPower, voltage);
-        powers[1] = drive_fr = c2.adjustPower((drive - turn) / drive_max * maxPower, voltage);
-        powers[2] = drive_rl = c3.adjustPower((drive + turn) / drive_max * maxPower, voltage);
-        powers[3] = drive_rr = c4.adjustPower((drive - turn) / drive_max * maxPower, voltage);
+        double drive_fl = c1.adjustPower((drive + turn) / drive_max * maxPower, voltage);
+        double drive_fr = c2.adjustPower((drive - turn) / drive_max * maxPower, voltage);
+        double drive_rl = c3.adjustPower((drive + turn) / drive_max * maxPower, voltage);
+        double drive_rr = c4.adjustPower((drive - turn) / drive_max * maxPower, voltage);
 
         double strafe_max = Math.max(Math.abs(strafe) + Math.abs(turn), 1);
-        powers[4] = strafe_fl = c1.adjustPower((strafe + turn) / strafe_max * maxPower, voltage);
-        powers[5] = strafe_fr = c2.adjustPower((-strafe - turn) / strafe_max * maxPower, voltage);
-        powers[6] = strafe_rl = c3.adjustPower((-strafe + turn) / strafe_max * maxPower, voltage);
-        powers[7] = strafe_rr = c4.adjustPower((strafe - turn) / strafe_max * maxPower, voltage);
+        double strafe_fl = c1.adjustPower((strafe + turn) / strafe_max * maxPower, voltage);
+        double strafe_fr = c2.adjustPower((-strafe - turn) / strafe_max * maxPower, voltage);
+        double strafe_rl = c3.adjustPower((-strafe + turn) / strafe_max * maxPower, voltage);
+        double strafe_rr = c4.adjustPower((strafe - turn) / strafe_max * maxPower, voltage);
 
-        powers[8] = turn_fl = c1.adjustPower(turn * maxPower, voltage);
-        powers[9] = turn_fr = c2.adjustPower(-turn * maxPower, voltage);
-        powers[10] = turn_rl = c3.adjustPower(turn * maxPower, voltage);
-        powers[11] = turn_rr = c4.adjustPower(-turn * maxPower, voltage);
+        double turn_fl = c1.adjustPower(turn * maxPower, voltage);
+        double turn_fr = c2.adjustPower(-turn * maxPower, voltage);
+        double turn_rl = c3.adjustPower(turn * maxPower, voltage);
+        double turn_rr = c4.adjustPower(-turn * maxPower, voltage);
+
+        fl = (drive_fl + strafe_fl + turn_fl) / 3;
+        fr = (drive_fr + strafe_fr + turn_fr) / 3;
+        rl = (drive_rl + strafe_rl + turn_rl) / 3;
+        rr = (drive_rr + strafe_rr + turn_rr) / 3;
     }
 
-    public double[] getDrivePowers() {
-        return powers.clone();
+    public void resetPIDF() {
+        drivePIDF.restart();
+        strafePIDF.restart();
+        turnPIDF.restart();
+    }
+    public double[] getDrivePowers(Pose newPose) {
+        drivePowers(newPose);
+        return new double [] {fl, fr, rl, rr};
     }
 
     public void getIMU() {
@@ -147,7 +152,7 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
     }
     public void setPowerTolerance(double powerTolerance) {
         this.powerTolerance = powerTolerance;
-    } 
+    }
 }
 
 /*
