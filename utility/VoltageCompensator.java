@@ -32,7 +32,7 @@ public class VoltageCompensator {
 
     public static double getVoltage() {
         double ret = MAX_VOLTAGE;
-        for (VoltageSensor sensor : Mollusc.opMode.hardwareMap.voltageSensor) {
+        for (VoltageSensor sensor : Mollusc.instance().hardwareMap.voltageSensor) {
             double voltage = sensor.getVoltage();
             if (voltage > 0 && voltage < ret) {
                 ret = voltage;

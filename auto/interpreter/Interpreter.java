@@ -25,12 +25,12 @@ public class Interpreter {
     private boolean running = true;
 
     public Interpreter(Asset asset) throws ParityException {
-        Configuration.useLinearOpMode();
+        Mollusc.useLinearOpMode();
         script = asset.getTokens();
         parse(script);
     }
     public Interpreter(String[] rawLines) throws ParityException {
-        Configuration.useLinearOpMode();
+        Mollusc.useLinearOpMode();
         script = Asset.tokenize(rawLines);
         parse(script);
     }
@@ -89,7 +89,7 @@ public class Interpreter {
         ) {
             Instruction i = instructions.get(instructionPointer);
             if (log) {
-                Mollusc.opMode.telemetry.log().add(i.line + ": " + i.name + ' ' + Arrays.toString(i.arguments));
+                Mollusc.instance().telemetry.log().add(i.line + ": " + i.name + ' ' + Arrays.toString(i.arguments));
             }
             actions.get(i.name).execute(i.arguments);
             ++instructionPointer;

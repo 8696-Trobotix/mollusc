@@ -12,7 +12,7 @@ public abstract class MecanumAutoBase {
     public double maxPower = 1.0;
 
     public void waitDelay(double seconds) throws ParityException {
-        LinearOpMode opMode = Configuration.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode();
         ElapsedTime temp = new ElapsedTime();
         while (temp.seconds() < seconds && !opMode.isStopRequested()) {
             opMode.idle();
@@ -20,7 +20,7 @@ public abstract class MecanumAutoBase {
     }
 
     public void register() throws ParityException {
-        Configuration.useLinearOpMode();
+        Mollusc.useLinearOpMode();
         interpreter.register("drive", (Object[] pose) -> {
             driveTo(
                 new Pose(

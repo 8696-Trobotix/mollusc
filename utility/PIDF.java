@@ -76,7 +76,7 @@ public class PIDF {
     }
 
     public static void bulkMode() {
-        List<LynxModule> allHubs = Mollusc.opMode.hardwareMap.getAll(LynxModule.class);
+        List<LynxModule> allHubs = Mollusc.instance().hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
             module.clearBulkCache();

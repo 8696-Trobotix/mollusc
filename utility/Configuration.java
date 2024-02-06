@@ -64,18 +64,11 @@ public class Configuration {
         return Double.parseDouble(getString(key));
     }
 
-    public static LinearOpMode useLinearOpMode() throws ParityException {
-        if (!(Mollusc.opMode instanceof LinearOpMode)) {
-            throw new ParityException("Telemetry-based configuration is not available with iterative OpModes.");
-        }
-        return (LinearOpMode)Mollusc.opMode;
-    }
-
     public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue) throws ParityException {
         return inputBoolean(caption, trueLabel, falseLabel, defaultValue, "(Locked) ");
     }
     public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue, String lockLabel) throws ParityException {
-        LinearOpMode opMode = useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode();
 
         boolean ret = defaultValue;
         Telemetry.Item item = opMode.telemetry.addData(caption, "");
@@ -111,7 +104,7 @@ public class Configuration {
         return inputInteger(caption, defaultValue, holdWait, delta, labels, "(Locked) ");
     }
     public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, Object[] labels, String lockLabel) throws ParityException {
-        LinearOpMode opMode = useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode();
 
         int ret = defaultValue;
         Telemetry.Item item = opMode.telemetry.addData(caption, "");
@@ -144,7 +137,7 @@ public class Configuration {
         return inputDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
     }
     public static double inputDouble(String caption, double defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
-        LinearOpMode opMode = useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode();
 
         double ret = defaultValue;
         Telemetry.Item item = opMode.telemetry.addData(caption, "");
@@ -179,7 +172,7 @@ public class Configuration {
             h.run();
         } catch (Exception e) {
             try {
-                LinearOpMode opMode = useLinearOpMode();
+                LinearOpMode opMode = Mollusc.useLinearOpMode();
                 opMode.telemetry.log().add(e.getMessage());
                 opMode.telemetry.log().add("Exception occurred. See above. Press (A) to terminate.");
                 while (!opMode.gamepad1.a && !opMode.isStopRequested()) {

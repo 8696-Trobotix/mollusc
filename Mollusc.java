@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.mollusc;
 
+import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
+
 import org.firstinspires.ftc.teamcode.mollusc.utility.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class Mollusc {
 
-    public static OpMode opMode;
+    private static OpMode opMode;
 
     public static void init(OpMode currentOpMode) {
         opMode = currentOpMode;
@@ -15,6 +17,17 @@ public class Mollusc {
 
     public static void deinit() {
         opMode = null;
+    }
+
+    public static LinearOpMode useLinearOpMode() throws ParityException {
+        if (!(opMode instanceof LinearOpMode)) {
+            throw new ParityException("Telemetry-based configuration is not available with iterative OpModes.");
+        }
+        return (LinearOpMode)opMode;
+    }
+
+    public static OpMode instance() {
+        return opMode;
     }
 }
 

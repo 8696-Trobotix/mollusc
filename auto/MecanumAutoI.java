@@ -63,7 +63,7 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
     // Field-centric style automated drive.
     // Recommended to use MecanumAutoII instead, as the heading is also accounted for whilst driving.
     public void driveTo(Pose newPose) throws ParityException {
-        LinearOpMode opMode = Configuration.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode();
 
         resetPIDF();
 

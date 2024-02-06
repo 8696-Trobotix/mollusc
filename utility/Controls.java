@@ -31,7 +31,7 @@ public class Controls {
     // Returns true on held value after a specified duration (seconds), false otherwise.
     public static boolean spacedHold(Object marker, boolean value, double duration) {
         Double time = holdMarkers.get(marker);
-        double runtime = Mollusc.opMode.getRuntime();
+        double runtime = Mollusc.instance().getRuntime();
         if (time == null) {
             time = runtime + duration;
             holdMarkers.put(marker, time);

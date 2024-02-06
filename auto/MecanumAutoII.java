@@ -66,21 +66,21 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
 
     // Field-centric style automated drive with three dead wheel localizers.
     public void driveTo(Pose newPose) throws ParityException {
-        LinearOpMode opMode = Configuration.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode();
 
         resetPIDF();
 
         ElapsedTime runtime = new ElapsedTime();
         int previousTime = 0;
 
-//        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);
+//        Mollusc.instance().telemetry.log().add("Driving to: " + newPose);
 
         while (opMode.opModeIsActive() && runtime.seconds() < moveTimeoutSeconds) {
             drivePowers(newPose);
 
-//            Mollusc.opMode.telemetry.addData("Position", deadWheels.pose);
-//            Mollusc.opMode.telemetry.addData("Powers", Arrays.toString(powers));
-//            Mollusc.opMode.telemetry.update();
+//            Mollusc.instance().telemetry.addData("Position", deadWheels.pose);
+//            Mollusc.instance().telemetry.addData("Powers", Arrays.toString(powers));
+//            Mollusc.instance().telemetry.update();
 
             base.frontLeft.setPower(fl);
             base.frontRight.setPower(fr);
