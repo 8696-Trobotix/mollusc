@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 
 import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
-import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
 
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
@@ -27,11 +26,11 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
     private double headingOffsetRadians = 0.0;
     private double powerTolerance;
 
+    private boolean useVoltageCompensator = false;
     private double fl, fr, rl, rr;
 
     public MecanumAutoI(
         DrivetrainBaseFourWheel base, 
-        Interpreter interpreter, 
         PIDF drivePIDF, 
         PIDF strafePIDF, 
         PIDF turnPIDF, 
@@ -39,21 +38,19 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
         double powerTolerance
     ) {
         this.base = base;
-        this.interpreter = interpreter;
         this.drivePIDF = drivePIDF;
         this.strafePIDF = strafePIDF;
         this.turnPIDF = turnPIDF;
         this.imu = imu;
         this.powerTolerance = powerTolerance;
-
-        PIDF emptyPIDF = new PIDF(0, 0, 0, 0);
-        c1 = new VoltageCompensator(base.frontLeft, emptyPIDF, 0);
-        c2 = new VoltageCompensator(base.frontRight, emptyPIDF, 0);
-        c3 = new VoltageCompensator(base.rearLeft, emptyPIDF, 0);
-        c4 = new VoltageCompensator(base.rearRight, emptyPIDF, 0);
     }
 
-    public void setVoltageCompensator(PIDF voltageCompensatorPIDF, double maxCurrent) {
+    public void setInterpreter(Interpreter interpreter) {
+        this.interpreter = interpreter;
+    }
+
+    public void setVoltageCompensators(PIDF voltageCompensatorPIDF, double maxCurrent) {
+        useVoltageCompensator = true;
         c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
         c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
         c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
@@ -63,7 +60,7 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
     // Field-centric style automated drive.
     // Recommended to use MecanumAutoII instead, as the heading is also accounted for whilst driving.
     public void driveTo(Pose newPose) throws ParityException {
-        LinearOpMode opMode = Mollusc.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("MecanumAutoI driveTo.");
 
         resetPIDF();
 
@@ -88,10 +85,7 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
             }
         }
 
-        base.frontLeft.setPower(0);
-        base.frontRight.setPower(0);
-        base.rearLeft.setPower(0);
-        base.rearRight.setPower(0);
+        base.stopAll();
     }
 
     private double[] drivePowers(Pose newPose) {
@@ -103,27 +97,24 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
 
         double voltage = VoltageCompensator.getVoltage();
 
-        double drive_max = Math.max(Math.abs(drive) + Math.abs(turn), 1);
-        double drive_fl = c1.adjustPower((drive + turn) / drive_max * maxPower, voltage);
-        double drive_fr = c2.adjustPower((drive - turn) / drive_max * maxPower, voltage);
-        double drive_rl = c3.adjustPower((drive + turn) / drive_max * maxPower, voltage);
-        double drive_rr = c4.adjustPower((drive - turn) / drive_max * maxPower, voltage);
+        // Calculations based on GM0.
+        double rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
+        double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
+        // Normalize. Also prevents power values from exceeding 1.0.
+        double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
 
-        double strafe_max = Math.max(Math.abs(strafe) + Math.abs(turn), 1);
-        double strafe_fl = c1.adjustPower((strafe + turn) / strafe_max * maxPower, voltage);
-        double strafe_fr = c2.adjustPower((-strafe - turn) / strafe_max * maxPower, voltage);
-        double strafe_rl = c3.adjustPower((-strafe + turn) / strafe_max * maxPower, voltage);
-        double strafe_rr = c4.adjustPower((strafe - turn) / strafe_max * maxPower, voltage);
+        double voltage = VoltageCompensator.getVoltage();
+        fl = (rotY + rotX + turn) / max * maxPower;
+        fr = (rotY - rotX - turn) / max * maxPower;
+        rl = (rotY - rotX + turn) / max * maxPower;
+        rr = (rotY + rotX - turn) / max * maxPower;
 
-        double turn_fl = c1.adjustPower(turn * maxPower, voltage);
-        double turn_fr = c2.adjustPower(-turn * maxPower, voltage);
-        double turn_rl = c3.adjustPower(turn * maxPower, voltage);
-        double turn_rr = c4.adjustPower(-turn * maxPower, voltage);
-
-        fl = (drive_fl + strafe_fl + turn_fl) / 3;
-        fr = (drive_fr + strafe_fr + turn_fr) / 3;
-        rl = (drive_rl + strafe_rl + turn_rl) / 3;
-        rr = (drive_rr + strafe_rr + turn_rr) / 3;
+        if (useVoltageCompensator) {
+            fl = c1.adjustPower(fl);
+            fr = c2.adjustPower(fr);
+            rl = c3.adjustPower(rl);
+            rr = c4.adjustPower(rr);
+        }
     }
 
     public void resetPIDF() {

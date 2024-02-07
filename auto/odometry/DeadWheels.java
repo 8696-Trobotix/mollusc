@@ -158,7 +158,7 @@ public class DeadWheels {
         leftPrev = rightPrev = centerPrev = 0;
     }
 
-    public void getPose() {
+    public Pose getPose() {
         return pose;
     }
     public void setPose(double x, double y, double z) {
@@ -179,7 +179,7 @@ public class DeadWheels {
         return center;
     }
 
-    public void getTrackWidth() {
+    public double getTrackWidth() {
         return trackWidth;
     }
     public void setTrackWidth(double trackWidth) {

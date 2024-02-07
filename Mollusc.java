@@ -19,9 +19,9 @@ public class Mollusc {
         opMode = null;
     }
 
-    public static LinearOpMode useLinearOpMode() throws ParityException {
+    public static LinearOpMode useLinearOpMode(String feature) throws ParityException {
         if (!(opMode instanceof LinearOpMode)) {
-            throw new ParityException("Telemetry-based configuration is not available with iterative OpModes.");
+            throw new ParityException("This feature cannot use LinearOpMode when the current OpMode is an iterative OpMode. " + feature);
         }
         return (LinearOpMode)opMode;
     }

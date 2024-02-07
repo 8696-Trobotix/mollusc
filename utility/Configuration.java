@@ -68,7 +68,7 @@ public class Configuration {
         return inputBoolean(caption, trueLabel, falseLabel, defaultValue, "(Locked) ");
     }
     public static boolean inputBoolean(String caption, String trueLabel, String falseLabel, boolean defaultValue, String lockLabel) throws ParityException {
-        LinearOpMode opMode = Mollusc.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("Configuration input boolean.");
 
         boolean ret = defaultValue;
         Telemetry.Item item = opMode.telemetry.addData(caption, "");
@@ -104,7 +104,7 @@ public class Configuration {
         return inputInteger(caption, defaultValue, holdWait, delta, labels, "(Locked) ");
     }
     public static int inputInteger(String caption, int defaultValue, double holdWait, int delta, Object[] labels, String lockLabel) throws ParityException {
-        LinearOpMode opMode = Mollusc.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("Configuration input integer.");
 
         int ret = defaultValue;
         Telemetry.Item item = opMode.telemetry.addData(caption, "");
@@ -137,7 +137,7 @@ public class Configuration {
         return inputDouble(caption, defaultValue, holdWait, delta, "(Locked) ");
     }
     public static double inputDouble(String caption, double defaultValue, double holdWait, double delta, String lockLabel) throws ParityException {
-        LinearOpMode opMode = Mollusc.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("Configuration input double.");
 
         double ret = defaultValue;
         Telemetry.Item item = opMode.telemetry.addData(caption, "");
@@ -172,7 +172,7 @@ public class Configuration {
             h.run();
         } catch (Exception e) {
             try {
-                LinearOpMode opMode = Mollusc.useLinearOpMode();
+                LinearOpMode opMode = Mollusc.useLinearOpMode("Configuration handle utility.");
                 opMode.telemetry.log().add(e.getMessage());
                 opMode.telemetry.log().add("Exception occurred. See above. Press (A) to terminate.");
                 while (!opMode.gamepad1.a && !opMode.isStopRequested()) {

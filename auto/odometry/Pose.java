@@ -12,7 +12,7 @@ public class Pose {
     public Pose(Pose other) {
         this.x = other.x;
         this.y = other.y;
-        this.x = other.z;
+        this.z = other.z;
     }
 
     @Override

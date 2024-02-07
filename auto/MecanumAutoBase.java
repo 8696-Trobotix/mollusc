@@ -1,18 +1,27 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
+import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
+
+import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
+
+import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
+import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
+
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
+
 public abstract class MecanumAutoBase {
     
     public double moveTimeoutSeconds = 5.0;
     public int staticTimeoutMilliseconds = 500;
 
     public DrivetrainBaseFourWheel base;
-    public Interpreter interpreter;
+    public Interpreter interpreter = null;
     public PIDF drivePIDF, strafePIDF, turnPIDF;
-    public VoltageCompensator c1, c2, c3, c4;
+    public VoltageCompensator c1 = null, c2 = null, c3 = null, c4 = null;
     public double maxPower = 1.0;
 
     public void waitDelay(double seconds) throws ParityException {
-        LinearOpMode opMode = Mollusc.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("MecanumAuto waitDelay.");
         ElapsedTime temp = new ElapsedTime();
         while (temp.seconds() < seconds && !opMode.isStopRequested()) {
             opMode.idle();
@@ -20,25 +29,30 @@ public abstract class MecanumAutoBase {
     }
 
     public void register() throws ParityException {
-        Mollusc.useLinearOpMode();
-        interpreter.register("drive", (Object[] pose) -> {
-            driveTo(
-                new Pose(
-                    Double.parseDouble((String)pose[0]), 
-                    Double.parseDouble((String)pose[1]), 
-                    Double.parseDouble((String)pose[2])
-                )
-            );
-        }, String.class, String.class, String.class);
-        interpreter.register("wait_seconds", (Object[] pose) -> {
-            waitDelay((Double)pose[0]);
-        }, Double.class);
-        interpreter.register("set_move_timeout_seconds", (Object[] t) -> {
-            moveTimeoutSeconds = (Double)t[0];
-        }, Double.class);
-        interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
-            staticTimeoutMilliseconds = (Integer)t[0];
-        }, Integer.class);
+        Mollusc.useLinearOpMode("MecanumAuto register.");
+        if (interpreter != null) {
+            interpreter.register("drive", (Object[] pose) -> {
+                driveTo(
+                    new Pose(
+                        Double.parseDouble((String)pose[0]), 
+                        Double.parseDouble((String)pose[1]), 
+                        Double.parseDouble((String)pose[2])
+                    )
+                );
+            }, String.class, String.class, String.class);
+            interpreter.register("wait_seconds", (Object[] pose) -> {
+                waitDelay((Double)pose[0]);
+            }, Double.class);
+            interpreter.register("set_move_timeout_seconds", (Object[] t) -> {
+                moveTimeoutSeconds = (Double)t[0];
+            }, Double.class);
+            interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
+                staticTimeoutMilliseconds = (Integer)t[0];
+            }, Integer.class);
+            interpreter.register("set_max_power", (Object[] power) -> {
+                maxPower = (Double)power[0];
+            }, Double.class);
+        }
     }
 }
 

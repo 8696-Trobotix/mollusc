@@ -36,7 +36,7 @@ public class PIDF {
     private double errorPrev = 0, integral = 0, t = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
-    public Filter.LowPass filter = new Filter.LowPass(0, 0.8);
+    private Filter.LowPass filter = new Filter.LowPass(0, 0.8);
 
     public PIDF(double Kp, double Ki, double Kd, double Kf, double integralLimit, double magnitude) {
         this.Kp = Kp;
@@ -48,12 +48,7 @@ public class PIDF {
     }
 
     public PIDF(PIDF reference) {
-        this.Kp = reference.Kp;
-        this.Ki = reference.Ki;
-        this.Kd = reference.Kd;
-        this.Kf = reference.Kf;
-        this.integralLimit = reference.integralLimit;
-        this.magnitude = reference.magnitude;
+        this(reference.Kp, reference.Ki, reference.Kd, reference.Kf, reference.integralLimit, reference.magnitude);
     }
 
     public double out(double error) {
@@ -81,6 +76,13 @@ public class PIDF {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
             module.clearBulkCache();
         }
+    }
+
+    public Filter.LowPass getFilter() {
+        return filter;
+    }
+    public void setFilter(Filter.LowPass filter) {
+        this.filter = filter;
     }
 }
 

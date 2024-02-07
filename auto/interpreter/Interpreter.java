@@ -25,12 +25,12 @@ public class Interpreter {
     private boolean running = true;
 
     public Interpreter(Asset asset) throws ParityException {
-        Mollusc.useLinearOpMode();
+        Mollusc.useLinearOpMode("Interpreter initialization.");
         script = asset.getTokens();
         parse(script);
     }
     public Interpreter(String[] rawLines) throws ParityException {
-        Mollusc.useLinearOpMode();
+        Mollusc.useLinearOpMode("Interpreter initialization.");
         script = Asset.tokenize(rawLines);
         parse(script);
     }

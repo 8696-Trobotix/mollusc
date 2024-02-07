@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
 import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 
 import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
-import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
 
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
@@ -27,37 +26,33 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
     private DeadWheels deadWheels;
     private double positionToleranceSq, headingTolerance;
 
+    private boolean useVoltageCompensator = false;
     private double fl, fr, rl, rr;
 
     public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
         DeadWheels deadWheels, 
-        Interpreter interpreter, 
         PIDF drivePID, 
         PIDF strafePID, 
         PIDF turnPID, 
-        PIDF voltageCompensatorPIDF, 
-        double maxCurrent, 
         double positionTolerance, 
-        double headingTolerance
+        double headingToleranceDegrees
     ) {
         this.base = base;
         this.deadWheels = deadWheels;
-        this.interpreter = interpreter;
         this.drivePID = drivePID;
         this.strafePID = strafePID;
         this.turnPID = turnPID;
         this.positionToleranceSq = positionTolerance * positionTolerance;
-        this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
+        this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingToleranceDegrees));
+    }
 
-        PIDF emptyPIDF = new PIDF(0, 0, 0, 0);
-        c1 = new VoltageCompensator(base.frontLeft, emptyPIDF, 0);
-        c2 = new VoltageCompensator(base.frontRight, emptyPIDF, 0);
-        c3 = new VoltageCompensator(base.rearLeft, emptyPIDF, 0);
-        c4 = new VoltageCompensator(base.rearRight, emptyPIDF, 0);
+    public void setInterpreter(Interpreter interpreter) {
+        this.interpreter = interpreter;
     }
 
     public void setVoltageCompensator(PIDF voltageCompensatorPIDF, double maxCurrent) {
+        useVoltageCompensator = true;
         c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
         c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
         c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
@@ -66,7 +61,7 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
 
     // Field-centric style automated drive with three dead wheel localizers.
     public void driveTo(Pose newPose) throws ParityException {
-        LinearOpMode opMode = Mollusc.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("MecanumAutoII driveTo");
 
         resetPIDF();
 
@@ -98,10 +93,7 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
             }
         }
 
-        base.frontLeft.setPower(0);
-        base.frontRight.setPower(0);
-        base.rearLeft.setPower(0);
-        base.rearRight.setPower(0);
+        base.stopAll();
     }
 
     private void drivePowers(Pose newPose) {
@@ -117,10 +109,17 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
 
         double voltage = VoltageCompensator.getVoltage();
-        fl = c1.adjustPower((rotY + rotX + turn) / max * maximumPower, voltage);
-        fr = c2.adjustPower((rotY - rotX - turn) / max * maximumPower, voltage);
-        rl = c3.adjustPower((rotY - rotX + turn) / max * maximumPower, voltage);
-        rr = c4.adjustPower((rotY + rotX - turn) / max * maximumPower, voltage);
+        fl = (rotY + rotX + turn) / max * maxPower;
+        fr = (rotY - rotX - turn) / max * maxPower;
+        rl = (rotY - rotX + turn) / max * maxPower;
+        rr = (rotY + rotX - turn) / max * maxPower;
+
+        if (useVoltageCompensator) {
+            fl = c1.adjustPower(fl);
+            fr = c2.adjustPower(fr);
+            rl = c3.adjustPower(rl);
+            rr = c4.adjustPower(rr);
+        }
 
         deadWheels.update();
     }

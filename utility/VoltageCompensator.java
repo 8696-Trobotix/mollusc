@@ -17,7 +17,7 @@ public class VoltageCompensator {
     private double maxCurrent;
     private Filter.LowPass filter = new Filter.LowPass(0, 0.5);
 
-    public VoltageCompensator(DcMotorEx motor, PIDF pifd, double maxCurrent) {
+    public VoltageCompensator(DcMotorEx motor, PIDF pidf, double maxCurrent) {
         this.motor = motor;
         this.pidf = pidf;
         this.maxCurrent = maxCurrent;
@@ -25,9 +25,35 @@ public class VoltageCompensator {
 
     // Returns a feed-forward value plus the original power.
     public double adjustPower(double power, double voltage) {
-        double targetCurrent = power / (voltage / MAX_VOLTAGE);
-        double actualCurrent = filter.out(motor.getCurrent(CurrentUnit.AMPS)) / maxCurrent;
-        return power + pidf.out(targetCurrent - actualCurrent);
+        /*
+        P = V * I --> Power = Voltage * Current
+        Lets use a simplified model where power directly correlates with robot motion.
+        Pn = Vn * In --> P / (MV * MI) = (V / MV) * (I / MI) --> Normalized Power = Normalized Voltage * Normalized Current
+            MV = Max Voltage
+            MI = Max Current
+        Method 1:
+            Let It represent the target current and Ia represent the actual current.
+            It = Pn / Vn, where Pn is the target power and Vn is the current voltage
+            Ia = In, where In is the current current
+            Compare It and Ia.
+        Method 2:
+            Let Pt represent the target power and Pa represent the actual power.
+            Pt = Pn, where Pn is the target power
+            Pa = Vn * In, where Vn is the current voltage and In is the current current
+        */
+
+        // Method 1
+        // double targetCurrent = power / (voltage / MAX_VOLTAGE);
+        // double actualCurrent = filter.out(motor.getCurrent(CurrentUnit.AMPS)) / maxCurrent;
+        // return power + pidf.out(targetCurrent - actualCurrent);
+
+        // Method 2
+        double actualPower = (voltage / MAX_VOLTAGE) * (filter.out(motor.getCurrent(CurrentUnit.AMPS)) / maxCurrent);
+        return power + pidf.out(power - actualPower);
+    }
+
+    public Filter.LowPass getFilter() {
+        return filter;
     }
 
     public static double getVoltage() {
