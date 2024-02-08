@@ -18,7 +18,18 @@ public abstract class MecanumAutoBase {
     public Interpreter interpreter = null;
     public PIDF drivePIDF, strafePIDF, turnPIDF;
     public VoltageCompensator c1 = null, c2 = null, c3 = null, c4 = null;
-    public double maxPower = 1.0;
+    public double maxPower = 1.0, maxPowerDeltaDurationSeconds = 0.5, closeEnough = 0.1;
+
+    public void resetPIDF() {
+        drivePIDF.restart();
+        strafePIDF.restart();
+        turnPIDF.restart();
+    }
+
+    private double utilDelta(double p, double d) {
+        p = Math.abs(d) <= closeEnough ? p - d : p - Math.signum(d) * maxPowerDeltaDurationSeconds * dt;
+        return p;
+    }
 
     public void waitDelay(double seconds) throws ParityException {
         LinearOpMode opMode = Mollusc.useLinearOpMode("MecanumAuto waitDelay.");

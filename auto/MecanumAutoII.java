@@ -108,27 +108,26 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
         // Normalize. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
 
-        double voltage = VoltageCompensator.getVoltage();
-        fl = (rotY + rotX + turn) / max * maxPower;
-        fr = (rotY - rotX - turn) / max * maxPower;
-        rl = (rotY - rotX + turn) / max * maxPower;
-        rr = (rotY + rotX - turn) / max * maxPower;
+        double fld = fl - (rotY + rotX + turn) / max * maxPower;
+        double frd = fr - (rotY - rotX - turn) / max * maxPower;
+        double rld = rl - (rotY - rotX + turn) / max * maxPower;
+        double rrd = rr - (rotY + rotX - turn) / max * maxPower;
+        fl = utilDelta(fl, fld);
+        fr = utilDelta(fr, frd);
+        rl = utilDelta(rl, rld);
+        rr = utilDelta(rr, rrd);
 
+        double voltage = VoltageCompensator.getVoltage();
         if (useVoltageCompensator) {
-            fl = c1.adjustPower(fl);
-            fr = c2.adjustPower(fr);
-            rl = c3.adjustPower(rl);
-            rr = c4.adjustPower(rr);
+            fl = c1.adjustPower(fl, voltage);
+            fr = c2.adjustPower(fr, voltage);
+            rl = c3.adjustPower(rl, voltage);
+            rr = c4.adjustPower(rr, voltage);
         }
 
         deadWheels.update();
     }
 
-    public void resetPIDF() {
-        drivePIDF.restart();
-        strafePIDF.restart();
-        turnPIDF.restart();
-    }
     public double[] getDrivePowers(Pose newPose) {
         drivePowers(newPose);
         return new double [] {fl, fr, rl, rr};
