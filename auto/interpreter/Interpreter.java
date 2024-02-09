@@ -24,18 +24,18 @@ public class Interpreter {
     private int instructionPointer = 0;
     private boolean running = true;
 
-    public Interpreter(Asset asset) throws ParityException {
+    public Interpreter(Asset asset) throws Exception {
         Mollusc.useLinearOpMode("Interpreter initialization.");
         script = asset.getTokens();
         parse(script);
     }
-    public Interpreter(String[] rawLines) throws ParityException {
+    public Interpreter(String[] rawLines) throws Exception {
         Mollusc.useLinearOpMode("Interpreter initialization.");
         script = Asset.tokenize(rawLines);
         parse(script);
     }
 
-    public void parse(String[][] tokens) throws ScriptParseException {
+    public void parse(String[][] tokens) {
         int lineNum = 0;
         for (String[] tokenLine : tokens) {
             ++lineNum;
@@ -168,7 +168,7 @@ public class Interpreter {
     public boolean getRunning() {
         return running;
     }
-    public boolean setRunning(boolean running) {
+    public void setRunning(boolean running) {
         this.running = running;
     }
 }

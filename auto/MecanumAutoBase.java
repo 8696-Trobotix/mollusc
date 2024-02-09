@@ -4,10 +4,18 @@ import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel
 
 import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
 
+import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
+
+import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
+
 import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
 import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
 
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public abstract class MecanumAutoBase {
     
@@ -20,14 +28,20 @@ public abstract class MecanumAutoBase {
     public VoltageCompensator c1 = null, c2 = null, c3 = null, c4 = null;
     public double maxPower = 1.0, maxPowerDeltaDurationSeconds = 0.5, closeEnough = 0.1;
 
+    public ElapsedTime runtime = new ElapsedTime();
+    private double previousTime = 0.0;
+
     public void resetPIDF() {
         drivePIDF.restart();
         strafePIDF.restart();
         turnPIDF.restart();
     }
 
-    private double utilDelta(double p, double d) {
-        p = Math.abs(d) <= closeEnough ? p - d : p - Math.signum(d) * maxPowerDeltaDurationSeconds * dt;
+    protected double utilDelta(double p, double d) {
+        double currentTime = runtime.seconds();
+        double dt = Math.min(currentTime - previousTime, 0.1);
+        previousTime = currentTime;
+        p = Math.abs(d) <= closeEnough ? p - d : p - Math.signum(d) / maxPowerDeltaDurationSeconds * dt;
         return p;
     }
 
@@ -36,33 +50,6 @@ public abstract class MecanumAutoBase {
         ElapsedTime temp = new ElapsedTime();
         while (temp.seconds() < seconds && !opMode.isStopRequested()) {
             opMode.idle();
-        }
-    }
-
-    public void register() throws ParityException {
-        Mollusc.useLinearOpMode("MecanumAuto register.");
-        if (interpreter != null) {
-            interpreter.register("drive", (Object[] pose) -> {
-                driveTo(
-                    new Pose(
-                        Double.parseDouble((String)pose[0]), 
-                        Double.parseDouble((String)pose[1]), 
-                        Double.parseDouble((String)pose[2])
-                    )
-                );
-            }, String.class, String.class, String.class);
-            interpreter.register("wait_seconds", (Object[] pose) -> {
-                waitDelay((Double)pose[0]);
-            }, Double.class);
-            interpreter.register("set_move_timeout_seconds", (Object[] t) -> {
-                moveTimeoutSeconds = (Double)t[0];
-            }, Double.class);
-            interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
-                staticTimeoutMilliseconds = (Integer)t[0];
-            }, Integer.class);
-            interpreter.register("set_max_power", (Object[] power) -> {
-                maxPower = (Double)power[0];
-            }, Double.class);
         }
     }
 }

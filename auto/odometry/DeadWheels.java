@@ -6,7 +6,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class DeadWheels {
     
-    private Pose pose;
+    public Pose pose;
     private Encoder left, right, center;
 
     private double leftPrev, rightPrev, centerPrev;
@@ -26,7 +26,7 @@ public class DeadWheels {
         double trackWidth, 
         double centerOffset
     ) {
-        this.pose = initialPose;
+        this.pose = new Pose(initialPose);
         this.left = left;
         this.right = right;
         this.center = center;
@@ -159,7 +159,7 @@ public class DeadWheels {
     }
 
     public Pose getPose() {
-        return pose;
+        return new Pose(pose);
     }
     public void setPose(double x, double y, double z) {
         setPose(new Pose(x, y, z));

@@ -76,7 +76,7 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
             base.rearRight.setPower(rr);
 
             int currentTime = (int)runtime.milliseconds();
-            double powerNet = Math.abs(powers[0]) + Math.abs(powers[1]) + Math.abs(powers[2]) + Math.abs(powers[3]);
+            double powerNet = Math.abs(fl) + Math.abs(fr) + Math.abs(rl) + Math.abs(rr);
             if (Math.abs(powerNet) > powerTolerance) {
                 previousTime = currentTime;
             }
@@ -88,14 +88,12 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
         base.stopAll();
     }
 
-    private double[] drivePowers(Pose newPose) {
+    private void drivePowers(Pose newPose) {
         int[] positions = base.getEncoderCounts();
         double drive = drivePIDF.out(newPose.x - (positions[0] + positions[1] + positions[2] + positions[3]) / 4);
         double strafe = strafePIDF.out(newPose.y - (positions[0] + positions[3]) / 2);
         double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS) + headingOffsetRadians;
         double turn = turnPIDF.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - heading));
-
-        double voltage = VoltageCompensator.getVoltage();
 
         // Calculations based on GM0.
         double rotX = strafe * Math.cos(-heading) - drive * Math.sin(-heading);
@@ -126,7 +124,34 @@ public class MecanumAutoI extends MecanumAutoBase implements Auto {
         return new double [] {fl, fr, rl, rr};
     }
 
-    public void getIMU() {
+    public void register() throws ParityException {
+        Mollusc.useLinearOpMode("MecanumAuto register.");
+        if (interpreter != null) {
+            interpreter.register("drive", (Object[] pose) -> {
+                driveTo(
+                    new Pose(
+                        Double.parseDouble((String)pose[0]), 
+                        Double.parseDouble((String)pose[1]), 
+                        Double.parseDouble((String)pose[2])
+                    )
+                );
+            }, String.class, String.class, String.class);
+            interpreter.register("wait_seconds", (Object[] pose) -> {
+                waitDelay((Double)pose[0]);
+            }, Double.class);
+            interpreter.register("set_move_timeout_seconds", (Object[] t) -> {
+                moveTimeoutSeconds = (Double)t[0];
+            }, Double.class);
+            interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
+                staticTimeoutMilliseconds = (Integer)t[0];
+            }, Integer.class);
+            interpreter.register("set_max_power", (Object[] power) -> {
+                maxPower = (Double)power[0];
+            }, Double.class);
+        }
+    }
+
+    public IMU getIMU() {
         return imu;
     }
 

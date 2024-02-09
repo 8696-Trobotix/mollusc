@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 public class VoltageCompensator {
 
-    public static final MAX_VOLTAGE = 14.0;
+    public static final double MAX_VOLTAGE = 14.0;
 
     private DcMotorEx motor;
     private PIDF pidf;

@@ -32,17 +32,17 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
     public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
         DeadWheels deadWheels, 
-        PIDF drivePID, 
-        PIDF strafePID, 
-        PIDF turnPID, 
+        PIDF drivePIDF, 
+        PIDF strafePIDF, 
+        PIDF turnPIDF, 
         double positionTolerance, 
         double headingToleranceDegrees
     ) {
         this.base = base;
         this.deadWheels = deadWheels;
-        this.drivePID = drivePID;
-        this.strafePID = strafePID;
-        this.turnPID = turnPID;
+        this.drivePIDF = drivePIDF;
+        this.strafePIDF = strafePIDF;
+        this.turnPIDF = turnPIDF;
         this.positionToleranceSq = positionTolerance * positionTolerance;
         this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingToleranceDegrees));
     }
@@ -97,9 +97,9 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
     }
 
     private void drivePowers(Pose newPose) {
-        double drive = drivePID.out(newPose.x - deadWheels.pose.x);
-        double strafe = strafePID.out(newPose.y - deadWheels.pose.y);
-        double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
+        double drive = drivePIDF.out(newPose.x - deadWheels.pose.x);
+        double strafe = strafePIDF.out(newPose.y - deadWheels.pose.y);
+        double turn = turnPIDF.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
 
         double heading = deadWheels.pose.z;
         // Calculations based on GM0.
@@ -131,6 +131,33 @@ public class MecanumAutoII extends MecanumAutoBase implements Auto {
     public double[] getDrivePowers(Pose newPose) {
         drivePowers(newPose);
         return new double [] {fl, fr, rl, rr};
+    }
+
+    public void register() throws ParityException {
+        Mollusc.useLinearOpMode("MecanumAuto register.");
+        if (interpreter != null) {
+            interpreter.register("drive", (Object[] pose) -> {
+                driveTo(
+                    new Pose(
+                        Double.parseDouble((String)pose[0]), 
+                        Double.parseDouble((String)pose[1]), 
+                        Double.parseDouble((String)pose[2])
+                    )
+                );
+            }, String.class, String.class, String.class);
+            interpreter.register("wait_seconds", (Object[] pose) -> {
+                waitDelay((Double)pose[0]);
+            }, Double.class);
+            interpreter.register("set_move_timeout_seconds", (Object[] t) -> {
+                moveTimeoutSeconds = (Double)t[0];
+            }, Double.class);
+            interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
+                staticTimeoutMilliseconds = (Integer)t[0];
+            }, Integer.class);
+            interpreter.register("set_max_power", (Object[] power) -> {
+                maxPower = (Double)power[0];
+            }, Double.class);
+        }
     }
 
     public DeadWheels getDeadWheels() {

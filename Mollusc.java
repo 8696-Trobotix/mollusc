@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 
 import org.firstinspires.ftc.teamcode.mollusc.utility.*;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 public class Mollusc {
