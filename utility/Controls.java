@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 public class Controls {
 
-    public static HashMap<Object, Boolean> singlePressMarkers = new HashMap<>();
-    public static HashMap<Object, Double> holdMarkers = new HashMap<>();
+    private static HashMap<Object, Boolean> singlePressMarkers = new HashMap<>();
+    private static HashMap<Object, Double> holdMarkers = new HashMap<>();
 
     // Squares `value` while retaining sign. Useful for more natural joystick feel.
     public static double quadratic(double value) {
@@ -31,7 +31,7 @@ public class Controls {
     // Returns true on held value after a specified duration (seconds), false otherwise.
     public static boolean spacedHold(Object marker, boolean value, double duration) {
         Double time = holdMarkers.get(marker);
-        double runtime = Mollusc.opMode.getRuntime();
+        double runtime = Mollusc.instance().getRuntime();
         if (time == null) {
             time = runtime + duration;
             holdMarkers.put(marker, time);
@@ -41,6 +41,11 @@ public class Controls {
         }
         holdMarkers.put(marker, runtime + duration);
         return true;
+    }
+
+    public static void clearMarkers() {
+        singlePressMarkers.clear();
+        holdMarkers.clear();
     }
 }
 

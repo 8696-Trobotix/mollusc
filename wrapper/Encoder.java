@@ -13,7 +13,7 @@ public class Encoder {
     private double distancePerTick;
 
     public Encoder(String name, double multiplier, int ticksPerRevolution, double wheelDiameter) {
-        this(Mollusc.opMode.hardwareMap.get(DcMotorEx.class, name), multiplier, ticksPerRevolution, wheelDiameter);
+        this(Mollusc.instance().hardwareMap.get(DcMotorEx.class, name), multiplier, ticksPerRevolution, wheelDiameter);
     }
 
     public Encoder(DcMotorEx motor, double multiplier, int ticksPerRevolution, double wheelDiameter) {

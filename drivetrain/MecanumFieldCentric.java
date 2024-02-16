@@ -6,12 +6,12 @@ import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class MecanumFieldCentric implements Drivetrain {
+    
+    private DrivetrainBaseFourWheel base;
+    private IMU imu;
 
-    public DrivetrainBaseFourWheel base;
-    public IMU imu;
-
-    public double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
-    public double yawOffset = 0;
+    private double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
+    private double yawOffset = 0.0;
 
     public MecanumFieldCentric(
         DrivetrainBaseFourWheel base, 
@@ -23,11 +23,11 @@ public class MecanumFieldCentric implements Drivetrain {
 
     // Scales can be thought of as maximums, where increase is linear from 0 --> [scale] as 0 --> 1.
     // `yawOffset` is in radians.
-    public void setDriveParams(double driveScaleMax, double strafeScaleMax, double turnScaleMax, double yawOffset) {
+    public void setDriveParams(double driveScaleMax, double strafeScaleMax, double turnScaleMax, double yawOffsetRadians) {
         this.driveScaleMax  = driveScaleMax;
         this.strafeScaleMax = strafeScaleMax;
         this.turnScaleMax   = turnScaleMax;
-        this.yawOffset      = yawOffset;
+        this.yawOffset      = yawOffsetRadians;
     }
 
     public void drive(double drive, double strafe, double turn) {
@@ -51,6 +51,27 @@ public class MecanumFieldCentric implements Drivetrain {
         base.frontRight.setPower(fr);
         base.rearLeft.setPower(rl);
         base.rearRight.setPower(rr);
+    }
+
+    public DrivetrainBaseFourWheel getBase() {
+        return base;
+    }
+
+    public IMU getIMU() {
+        return imu;
+    }
+
+    public double getDriveScaleMax() {
+        return driveScaleMax;
+    }
+    public double getStrafeScaleMax() {
+        return strafeScaleMax;
+    }
+    public double getTurnScaleMax() {
+        return turnScaleMax;
+    }
+    public double getYawOffsetRadians() {
+        return yawOffset;
     }
 }
 

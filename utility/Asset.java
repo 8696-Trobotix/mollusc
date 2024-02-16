@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.mollusc.utility;
 
-import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
-
 import org.firstinspires.ftc.teamcode.mollusc.exception.AssetRetrievalException;
+
+import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import java.util.stream.Collectors;
 import java.util.LinkedList;
@@ -17,7 +17,7 @@ public class Asset {
     public Asset(String path) throws AssetRetrievalException {
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(
-                Mollusc.opMode.hardwareMap.appContext.getAssets().open(path)
+                Mollusc.instance().hardwareMap.appContext.getAssets().open(path)
             );
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             data = bufferedReader.lines().collect(Collectors.joining("\n"));

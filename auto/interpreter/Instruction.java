@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto.interpreter;
 
 public class Instruction {
+    
     public String name;
     public Object[] arguments;
     public int line;

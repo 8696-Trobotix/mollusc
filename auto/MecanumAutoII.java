@@ -1,79 +1,86 @@
 package org.firstinspires.ftc.teamcode.mollusc.auto;
 
 import org.firstinspires.ftc.teamcode.mollusc.drivetrain.DrivetrainBaseFourWheel;
+
 import org.firstinspires.ftc.teamcode.mollusc.auto.interpreter.Interpreter;
-import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.DeadWheels;
-import org.firstinspires.ftc.teamcode.mollusc.utility.Configuration;
 import org.firstinspires.ftc.teamcode.mollusc.auto.odometry.Pose;
+
+import org.firstinspires.ftc.teamcode.mollusc.exception.ParityException;
+
+import org.firstinspires.ftc.teamcode.mollusc.utility.VoltageCompensator;
 import org.firstinspires.ftc.teamcode.mollusc.utility.PIDF;
+
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 import java.util.Arrays;
 
-public class MecanumAutoII implements Auto {
+public class MecanumAutoII extends MecanumAutoBase implements Auto {
+    
+    private DeadWheels deadWheels;
+    private double positionToleranceSq, headingTolerance;
 
-    public static double TIMEOUT = 5.0;
-    public static int STATIC_TIMEOUT_MILLISECONDS = 500;
-
-    public DrivetrainBaseFourWheel base;
-    public DeadWheels deadWheels;
-    public Interpreter interpreter;
-    public PIDF drivePID, strafePID, turnPID;
-    public double maximumPower;
-    public double positionToleranceSq, headingTolerance;
+    private boolean useVoltageCompensator = false;
+    private double fl, fr, rl, rr;
 
     public MecanumAutoII(
         DrivetrainBaseFourWheel base, 
         DeadWheels deadWheels, 
-        Interpreter interpreter, 
-        PIDF drivePID, 
-        PIDF strafePID, 
-        PIDF turnPID, 
-        double maximumPower, 
+        PIDF drivePIDF, 
+        PIDF strafePIDF, 
+        PIDF turnPIDF, 
         double positionTolerance, 
-        double headingTolerance
+        double headingToleranceDegrees
     ) {
         this.base = base;
         this.deadWheels = deadWheels;
-        this.interpreter = interpreter;
-        this.drivePID = drivePID;
-        this.strafePID = strafePID;
-        this.turnPID = turnPID;
-        this.maximumPower = maximumPower;
+        this.drivePIDF = drivePIDF;
+        this.strafePIDF = strafePIDF;
+        this.turnPIDF = turnPIDF;
         this.positionToleranceSq = positionTolerance * positionTolerance;
-        this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingTolerance));
+        this.headingTolerance = AngleUnit.normalizeRadians(Math.toRadians(headingToleranceDegrees));
+    }
+
+    public void setInterpreter(Interpreter interpreter) {
+        this.interpreter = interpreter;
+    }
+
+    public void setVoltageCompensator(PIDF voltageCompensatorPIDF, double maxCurrent) {
+        useVoltageCompensator = true;
+        c1 = new VoltageCompensator(base.frontLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
+        c2 = new VoltageCompensator(base.frontRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
+        c3 = new VoltageCompensator(base.rearLeft, new PIDF(voltageCompensatorPIDF), maxCurrent);
+        c4 = new VoltageCompensator(base.rearRight, new PIDF(voltageCompensatorPIDF), maxCurrent);
     }
 
     // Field-centric style automated drive with three dead wheel localizers.
     public void driveTo(Pose newPose) throws ParityException {
-        LinearOpMode opMode = Configuration.useLinearOpMode();
+        LinearOpMode opMode = Mollusc.useLinearOpMode("MecanumAutoII driveTo");
 
-        drivePID.restart();
-        strafePID.restart();
-        turnPID.restart();
+        resetPIDF();
 
         ElapsedTime runtime = new ElapsedTime();
         int previousTime = 0;
 
-//        Mollusc.opMode.telemetry.log().add("Driving to: " + newPose);
+//        Mollusc.instance().telemetry.log().add("Driving to: " + newPose);
 
-        while (opMode.opModeIsActive() && runtime.seconds() < TIMEOUT) {
-            double[] powers = drivePowers(newPose);
+        while (opMode.opModeIsActive() && runtime.seconds() < moveTimeoutSeconds) {
+            drivePowers(newPose);
 
-//            Mollusc.opMode.telemetry.addData("Position", deadWheels.pose);
-//            Mollusc.opMode.telemetry.addData("Powers", Arrays.toString(powers));
-//            Mollusc.opMode.telemetry.update();
+//            Mollusc.instance().telemetry.addData("Position", deadWheels.pose);
+//            Mollusc.instance().telemetry.addData("Powers", Arrays.toString(powers));
+//            Mollusc.instance().telemetry.update();
 
-            base.frontLeft.setPower(powers[0]);
-            base.frontRight.setPower(powers[1]);
-            base.rearLeft.setPower(powers[2]);
-            base.rearRight.setPower(powers[3]);
+            base.frontLeft.setPower(fl);
+            base.frontRight.setPower(fr);
+            base.rearLeft.setPower(rl);
+            base.rearRight.setPower(rr);
 
             int currentTime = (int)runtime.milliseconds();
             double a = newPose.x - deadWheels.pose.x, b = newPose.y - deadWheels.pose.y;
@@ -81,21 +88,18 @@ public class MecanumAutoII implements Auto {
             if (!atCorrectPosition) {
                 previousTime = currentTime;
             }
-            if (currentTime >= previousTime + STATIC_TIMEOUT_MILLISECONDS) {
+            if (currentTime >= previousTime + staticTimeoutMilliseconds) {
                 break;
             }
         }
 
-        base.frontLeft.setPower(0);
-        base.frontRight.setPower(0);
-        base.rearLeft.setPower(0);
-        base.rearRight.setPower(0);
+        base.stopAll();
     }
 
-    public double[] drivePowers(Pose newPose) {
-        double drive = drivePID.out(newPose.x - deadWheels.pose.x);
-        double strafe = strafePID.out(newPose.y - deadWheels.pose.y);
-        double turn = turnPID.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
+    private void drivePowers(Pose newPose) {
+        double drive = drivePIDF.out(newPose.x - deadWheels.pose.x);
+        double strafe = strafePIDF.out(newPose.y - deadWheels.pose.y);
+        double turn = turnPIDF.out(-1 * AngleUnit.normalizeRadians(Math.toRadians(newPose.z) - deadWheels.pose.z));
 
         double heading = deadWheels.pose.z;
         // Calculations based on GM0.
@@ -103,44 +107,75 @@ public class MecanumAutoII implements Auto {
         double rotY = strafe * Math.sin(-heading) + drive * Math.cos(-heading);
         // Normalize. Also prevents power values from exceeding 1.0.
         double max = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
-        double fl = (rotY + rotX + turn) / max * maximumPower;
-        double fr = (rotY - rotX - turn) / max * maximumPower;
-        double rl = (rotY - rotX + turn) / max * maximumPower;
-        double rr = (rotY + rotX - turn) / max * maximumPower;
+
+        double fld = fl - (rotY + rotX + turn) / max * maxPower;
+        double frd = fr - (rotY - rotX - turn) / max * maxPower;
+        double rld = rl - (rotY - rotX + turn) / max * maxPower;
+        double rrd = rr - (rotY + rotX - turn) / max * maxPower;
+        fl = utilDelta(fl, fld);
+        fr = utilDelta(fr, frd);
+        rl = utilDelta(rl, rld);
+        rr = utilDelta(rr, rrd);
+
+        double voltage = VoltageCompensator.getVoltage();
+        if (useVoltageCompensator) {
+            fl = c1.adjustPower(fl, voltage);
+            fr = c2.adjustPower(fr, voltage);
+            rl = c3.adjustPower(rl, voltage);
+            rr = c4.adjustPower(rr, voltage);
+        }
 
         deadWheels.update();
-
-        return new double[] {fl, fr, rl, rr};
     }
 
-    public void waitDelay(double seconds) throws ParityException {
-        LinearOpMode opMode = Configuration.useLinearOpMode();
-        ElapsedTime temp = new ElapsedTime();
-        while (temp.seconds() < seconds && !opMode.isStopRequested()) {
-            opMode.idle();
-        }
+    public double[] getDrivePowers(Pose newPose) {
+        drivePowers(newPose);
+        return new double [] {fl, fr, rl, rr};
     }
 
     public void register() throws ParityException {
-        Configuration.useLinearOpMode();
-        interpreter.register("drive", (Object[] pose) -> {
-            driveTo(
-                new Pose(
-                    Double.parseDouble((String)pose[0]), 
-                    Double.parseDouble((String)pose[1]), 
-                    Double.parseDouble((String)pose[2])
-                )
-            );
-        }, String.class, String.class, String.class);
-        interpreter.register("wait_seconds", (Object[] pose) -> {
-            waitDelay((Double)pose[0]);
-        }, Double.class);
-        interpreter.register("set_timeout_seconds", (Object[] t) -> {
-            TIMEOUT = (Double)t[0];
-        }, Double.class);
-        interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
-            STATIC_TIMEOUT_MILLISECONDS = (Integer)t[0];
-        }, Integer.class);
+        Mollusc.useLinearOpMode("MecanumAuto register.");
+        if (interpreter != null) {
+            interpreter.register("drive", (Object[] pose) -> {
+                driveTo(
+                    new Pose(
+                        Double.parseDouble((String)pose[0]), 
+                        Double.parseDouble((String)pose[1]), 
+                        Double.parseDouble((String)pose[2])
+                    )
+                );
+            }, String.class, String.class, String.class);
+            interpreter.register("wait_seconds", (Object[] pose) -> {
+                waitDelay((Double)pose[0]);
+            }, Double.class);
+            interpreter.register("set_move_timeout_seconds", (Object[] t) -> {
+                moveTimeoutSeconds = (Double)t[0];
+            }, Double.class);
+            interpreter.register("set_static_timeout_milliseconds", (Object[] t) -> {
+                staticTimeoutMilliseconds = (Integer)t[0];
+            }, Integer.class);
+            interpreter.register("set_max_power", (Object[] power) -> {
+                maxPower = (Double)power[0];
+            }, Double.class);
+        }
+    }
+
+    public DeadWheels getDeadWheels() {
+        return deadWheels;
+    }
+
+    public double getPositionTolerance() {
+        return Math.sqrt(positionToleranceSq);
+    }
+    public void setPositionTolerance(double tolerance) {
+        this.positionToleranceSq = tolerance * tolerance;
+    }
+
+    public double getHeadingToleranceRadians() {
+        return headingTolerance;
+    }
+    public void setHeadingToleranceRadians(double radians) {
+        this.headingTolerance = radians;
     }
 }
 
