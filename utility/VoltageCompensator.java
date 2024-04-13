@@ -27,7 +27,7 @@ public class VoltageCompensator {
     public double adjustPower(double power, double voltage) {
         /*
         P = V * I --> Power = Voltage * Current
-        Lets use a simplified model where power directly correlates with robot motion.
+        Let's use a simplified model where power directly correlates with robot motion.
         Pn = Vn * In --> P / (MV * MI) = (V / MV) * (I / MI) --> Normalized Power = Normalized Voltage * Normalized Current
             MV = Max Voltage
             MI = Max Current
