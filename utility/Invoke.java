@@ -1,11 +1,23 @@
-package org.firstinspires.ftc.teamcode.mollusc.drivetrain;
+package org.firstinspires.ftc.teamcode.mollusc.utility;
 
-public interface Drivetrain {
-    public void drive(double drive, double strafe, double turn);
+import java.lang.reflect.Method;
+
+public class Invoke {
+    public static void run(Runnable func, double delaySeconds) {
+        Thread thread = new Thread(() -> {
+            try {
+                Thread.sleep((long)(delaySeconds * 1000));
+                func.run();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        thread.start();
+    }
 }
 
 /*
-Copyright 2023 Trobotix 8696
+Copyright 2024 Trobotix 8696
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

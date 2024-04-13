@@ -22,12 +22,12 @@ package org.firstinspires.ftc.teamcode.mollusc.utility;
 
 import org.firstinspires.ftc.teamcode.mollusc.Mollusc;
 
-import java.util.List;
-
 import com.qualcomm.hardware.lynx.LynxModule;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import java.util.List;
 
 public class PIDF {
 
@@ -36,7 +36,7 @@ public class PIDF {
     private double errorPrev = 0, integral = 0, t = 0;
 
     private ElapsedTime runtime = new ElapsedTime();
-    public Filter.LowPass filter = new Filter.LowPass(0, 0.8);
+    private Filter.LowPass filter = new Filter.LowPass(0, 0.8);
 
     public PIDF(double Kp, double Ki, double Kd, double Kf, double integralLimit, double magnitude) {
         this.Kp = Kp;
@@ -45,6 +45,10 @@ public class PIDF {
         this.Kf = Kf;
         this.integralLimit = integralLimit;
         this.magnitude = magnitude;
+    }
+
+    public PIDF(PIDF reference) {
+        this(reference.Kp, reference.Ki, reference.Kd, reference.Kf, reference.integralLimit, reference.magnitude);
     }
 
     public double out(double error) {
@@ -67,11 +71,18 @@ public class PIDF {
     }
 
     public static void bulkMode() {
-        List<LynxModule> allHubs = Mollusc.opMode.hardwareMap.getAll(LynxModule.class);
+        List<LynxModule> allHubs = Mollusc.instance().hardwareMap.getAll(LynxModule.class);
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
             module.clearBulkCache();
         }
+    }
+
+    public Filter.LowPass getFilter() {
+        return filter;
+    }
+    public void setFilter(Filter.LowPass filter) {
+        this.filter = filter;
     }
 }
 

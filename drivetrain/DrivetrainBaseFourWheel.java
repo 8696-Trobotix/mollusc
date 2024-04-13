@@ -40,6 +40,13 @@ public class DrivetrainBaseFourWheel {
             rearRight.getCurrentPosition()
         };
     }
+
+    public void stopAll() {
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        rearLeft.setPower(0);
+        rearRight.setPower(0);
+    }
 }
 
 /*

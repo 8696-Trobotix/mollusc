@@ -15,7 +15,7 @@ public class Make {
     private static HardwareMap hardwareMap;
 
     public Make() {
-        hardwareMap = Mollusc.opMode.hardwareMap;
+        hardwareMap = Mollusc.instance().hardwareMap;
     }
 
     public static IMU imu(

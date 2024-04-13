@@ -5,18 +5,18 @@ import org.firstinspires.ftc.teamcode.mollusc.wrapper.Encoder;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class DeadWheels {
-
+    
     public Pose pose;
-    public Encoder left, right, center;
+    private Encoder left, right, center;
 
     private double leftPrev, rightPrev, centerPrev;
     private double headingPrev;
 
     // Distance between left and right encoders.
-    public double trackWidth;
+    private double trackWidth;
     // Distance between the center encoder and the robot's center of rotation.
     // Should be negative if the center encoder is in the back, and positive if in the front (of the robot).
-    public double centerOffset;
+    private double centerOffset;
 
     public DeadWheels(
         Pose initialPose, 
@@ -26,7 +26,7 @@ public class DeadWheels {
         double trackWidth, 
         double centerOffset
     ) {
-        this.pose = initialPose;
+        this.pose = new Pose(initialPose);
         this.left = left;
         this.right = right;
         this.center = center;
@@ -158,11 +158,39 @@ public class DeadWheels {
         leftPrev = rightPrev = centerPrev = 0;
     }
 
+    public Pose getPose() {
+        return new Pose(pose);
+    }
     public void setPose(double x, double y, double z) {
-        pose.x = x;
-        pose.y = y;
-        pose.z = z;
-        headingPrev = z;
+        setPose(new Pose(x, y, z));
+    }
+    public void setPose(Pose pose) {
+        this.pose = new Pose(pose);
+        this.headingPrev = pose.z;
+    }
+
+    public Encoder getLeftEncoder() {
+        return left;
+    }
+    public Encoder getRightEncoder() {
+        return right;
+    }
+    public Encoder getCenterEncoder() {
+        return center;
+    }
+
+    public double getTrackWidth() {
+        return trackWidth;
+    }
+    public void setTrackWidth(double trackWidth) {
+        this.trackWidth = trackWidth;
+    }
+
+    public double getCenterOffset() {
+        return centerOffset;
+    }
+    public void setCenterOffset(double centerOffset) {
+        this.centerOffset = centerOffset;
     }
 }
 

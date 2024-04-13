@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.mollusc.vision;
 
 import org.opencv.imgproc.Imgproc;
+
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.core.Point;
@@ -71,7 +72,8 @@ public class ObjectDetector {
         for (MatOfPoint contour : contours) {
             Rect rect = Imgproc.boundingRect(contour);
 
-            double pixelTotality = Core.countNonZero(mask1.submat(rect)) / total;
+            double pixelTotality = Math.abs(Imgproc.contourArea(contour)) / total;
+            // double pixelTotality = Core.countNonZero(mask1.submat(rect)) / total;
             double boundingTotality = rect.width * rect.height / total;
             if (
                 pixelTotality >= minimumPixelTotality 

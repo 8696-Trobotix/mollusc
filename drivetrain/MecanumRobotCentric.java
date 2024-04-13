@@ -4,9 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class MecanumRobotCentric implements Drivetrain {
 
-    public DrivetrainBaseFourWheel base;
+    private DrivetrainBaseFourWheel base;
 
-    public double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
+    private double driveScaleMax = 1.0, strafeScaleMax = 1.0, turnScaleMax = 1.0;
 
     public MecanumRobotCentric(
         DrivetrainBaseFourWheel base
@@ -37,6 +37,20 @@ public class MecanumRobotCentric implements Drivetrain {
         base.frontRight.setPower(fr);
         base.rearLeft.setPower(rl);
         base.rearRight.setPower(rr);
+    }
+
+    public DrivetrainBaseFourWheel getBase() {
+        return base;
+    }
+
+    public double getDriveScaleMax() {
+        return driveScaleMax;
+    }
+    public double getStrafeScaleMax() {
+        return strafeScaleMax;
+    }
+    public double getTurnScaleMax() {
+        return turnScaleMax;
     }
 }
 
