@@ -2,7 +2,12 @@
 🐚 Trobotix common modules.
 
 ## Usage
-> Requires `minSdkVersion 23` to be changed to `minSdk 24` or `minSdkVersion 24` in `build.common.gradle`.
+> [!Note]
+> Requires `minSdkVersion 23` to be changed to `minSdk 24` or `minSdkVersion 24` in `build.common.gradle`  
+> if the robot controller version is less then 8.2.
+
+> [!Warning]
+> This was last tested for robot controller version 9.0.1, and may not work as intended for later versions.
 
 Download or clone [pre-release v0.1.0](https://github.com/8696-Trobotix/mollusc/releases/tag/v0.1.0) into `teamcode`, optionally add it as a git submodule.  
 The current state of the main branch is unstable. A series of refactorings and some additional features were added while this library was developed alongside the Trobotix codebase for the CENTERSTAGE season. These changes have not been tested, so use the main branch at one's own discretion and with caution. Also note that the supposed "tests" themselves have never been run nor tested and that the library in general does not strictly adhere to a conventional Java project structure.
